@@ -1,0 +1,64 @@
+/* eWattPH design system — exact e.gov.ph clone (extracted from official bundle) */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@source '../js/**/*.jsx';
+@source '../views';
+
+html {
+  font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  color: #1a1a2e;
+  /* Full-viewport eGovPH backdrop — fixed so it always fills the screen */
+  min-height: 100dvh;
+  background-color: #f5f7fa;
+  background-image:
+    radial-gradient(1100px 480px at 85% -8%, rgba(0, 64, 231, 0.09), transparent 60%),
+    radial-gradient(900px 420px at -10% 30%, rgba(252, 209, 22, 0.07), transparent 55%),
+    linear-gradient(180deg, #f0f4ff 0%, #ffffff 42%, #f5f7fa 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+*:focus-visible {
+  outline: 2px solid #0040e7;
+  outline-offset: 2px;
+}
+
+@theme {
+  /* Primary brand — e.gov.ph electric blue */
+  --color-primary: #0040E7;
+  --color-primary-dark: #002D6B;
+  --color-cobalt: #0047AB;
+
+  /* Links/active states — same single-blue system as e.gov.ph */
+  --color-secondary: #0040E7;
+
+  /* Flag accents — exact official values used by e.gov.ph */
+  --color-accent: #FCD116;
+  --color-danger: #CE1126;
+  --color-warning: #F59E0B;
+  --color-success: #10B981;
+
+  /* Surfaces */
+  --color-background: #FFFFFF;
+  --color-card: #FFFFFF;
+  --color-tint: #F0F4FF;
+  --color-muted: #F5F7FA;
+  --color-paleblue: #E0E9FF;
+
+  /* Text */
+  --color-textprimary: #1A1A2E;
+  --color-textmuted: #64748B;
+
+  /* Borders — e.gov.ph blue-alpha */
+  --color-brandborder: #0040E71A;
+
+  /* Typography */
+  --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif;
+}
