@@ -2,14 +2,13 @@ import { Link } from '@inertiajs/react'
 import { Zap, MapPin, FileText, ShieldCheck, ChevronRight, BadgeCheck, AlertTriangle, ArrowUpRight, Radio } from 'lucide-react'
 
 /**
- * Homepage — e.gov.ph structure:
- * full-screen hero → premium dashboard panels → contained CTA.
+ * Homepage — e.gov.ph visual language:
+ * full-screen hero → centered section intros + soft tinted cards → contained CTA.
  */
 export default function Home({ greeting, metrics = {}, announcements = [], riskZones = [], myReportsCount = 0, myActivePermits = 0, auth = {} }) {
   const user = auth?.user
 
   return (
-    // Escape the centered shell horizontally so bands span the whole screen
     <div
       className="relative -mb-24 -mt-6 md:-mb-12 md:-mt-8"
       style={{ marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
@@ -70,136 +69,124 @@ export default function Home({ greeting, metrics = {}, announcements = [], riskZ
         </div>
       </section>
 
-      {/* ── DASHBOARD PANELS (constrained) ─────────────────────── */}
-      <div className="mx-auto w-full max-w-7xl space-y-16 px-4 py-16 md:px-8">
-        {/* ═══ PANEL 1 · GRID HEALTH STRIP ═══ */}
-        <section aria-label="Live power status">
-          <SectionHead
-            kicker="Real-time"
-            title="National Power Status"
-            meta={
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/5 px-3 py-1 text-xs font-semibold text-emerald-700">
-                <Radio className="h-3 w-3 animate-pulse" /> Live
-              </span>
-            }
+      {/* ── SECTION 2 · REAL-TIME GRID HEALTH ──────────────────── */}
+      <div className="mx-auto w-full max-w-7xl space-y-24 px-4 py-20 md:space-y-28 md:px-8 md:py-28">
+      <section aria-label="Live power status">
+        <SectionIntro
+          kicker="Real-Time"
+          title="National Power,"
+          highlight="Live."
+          sub="Every number below comes from citizens on the ground — verified by LGUs and updated as the grid responds."
+        />
+
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 md:mt-16 md:gap-7">
+          <StatTile
+            tone="bg-emerald-50/80"
+            chip="bg-emerald-100 text-emerald-600"
+            icon={<ShieldCheck className="h-5 w-5" />}
+            label="Power Reliability"
+            value={`${metrics.power_reliability ?? '–'}%`}
+            note={metrics.power_reliability >= 95 ? 'Grid stable nationwide' : 'Monitor load levels'}
+          />
+          <StatTile
+            tone="bg-red-50/80"
+            chip="bg-red-100 text-red-600"
+            icon={<Zap className="h-5 w-5" />}
+            label="Active Outages"
+            value={metrics.active_outages ?? 0}
+            note="Being responded to by LGU teams"
+          />
+          <StatTile
+            tone="bg-[#F0F4FF]"
+            chip="bg-[#E0E9FF] text-primary"
+            icon={<MapPin className="h-5 w-5" />}
+            label="Citizen Reports"
+            value={metrics.reports_24h ?? 0}
+            note="Submitted in the last 24 hours"
+          />
+          <StatTile
+            tone="bg-emerald-50/80"
+            chip="bg-emerald-100 text-emerald-600"
+            icon={<FileText className="h-5 w-5" />}
+            label="Resolved Today"
+            value={metrics.resolved_today ?? 0}
+            note="Power restored and verified"
+          />
+        </div>
+      </section>
+
+      {/* ── SECTION 3 · AI RISK FORECAST ───────────────────────── */}
+      {riskZones.length > 0 && (
+        <section aria-label="AI risk zones">
+          <SectionIntro
+            kicker="AI Analytics"
+            title="Outage Risks,"
+            highlight="Predicted."
+            sub="Our predictive model analyzes citizen reports, grid load, and historical patterns to flag high-risk areas 48 hours ahead."
           />
 
-          <div className="mt-8 overflow-hidden rounded-2xl border border-brandborder bg-card shadow-sm">
-            <div className="grid grid-cols-1 divide-y divide-[#0040E71A] sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
-              <Cell
-                icon={<ShieldCheck className="h-4.5 w-4.5" />}
-                tone="text-emerald-600 bg-emerald-50"
-                label="Power Reliability"
-                value={`${metrics.power_reliability ?? '–'}%`}
-                note={metrics.power_reliability >= 95 ? 'Grid stable' : 'Monitor load levels'}
-              />
-              <Cell
-                icon={<Zap className="h-4.5 w-4.5" />}
-                tone="text-danger bg-red-50"
-                label="Active Outages"
-                value={metrics.active_outages ?? 0}
-                note="Being responded to"
-              />
-              <Cell
-                icon={<MapPin className="h-4.5 w-4.5" />}
-                tone="text-primary bg-tint"
-                label="Reports · 24 hours"
-                value={metrics.reports_24h ?? 0}
-                note="Citizen-submitted nationwide"
-              />
-              <Cell
-                icon={<FileText className="h-4.5 w-4.5" />}
-                tone="text-emerald-600 bg-emerald-50"
-                label="Resolved Today"
-                value={metrics.resolved_today ?? 0}
-                note="Power restored"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* ═══ PANEL 2 · RISK WATCHLIST ═══ */}
-        {riskZones.length > 0 && (
-          <section aria-label="AI risk zones">
-            <SectionHead
-              kicker="AI Analytics"
-              title="48-Hour Risk Forecast"
-              meta={<span className="text-xs font-medium text-textmuted">Predictive model · refreshes daily</span>}
-            />
-
-            <div className="mt-8 overflow-hidden rounded-2xl border border-brandborder bg-card shadow-sm">
-              {riskZones.map((z, i) => (
-                <div key={i}
-                  className={`flex flex-col gap-4 px-6 py-5 transition hover:bg-muted md:flex-row md:items-center ${i > 0 ? 'border-t border-[#0040E71A]' : ''}`}>
-                  {/* Level indicator */}
-                  <div className={`hidden h-12 w-1 shrink-0 rounded-full sm:block ${meterColor(z.risk_level)}`} aria-hidden="true" />
-
-                  {/* Place */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <h3 className="font-bold tracking-tight text-textprimary">{z.province}</h3>
-                      <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-textmuted">{z.region}</span>
-                    </div>
-                    <p className="mt-1 text-sm leading-[1.65] text-textmuted">{z.predicted_cause}</p>
+          <div className="mx-auto mt-12 flex max-w-5xl flex-wrap justify-center gap-6 md:mt-16">
+            {riskZones.map((z, i) => (
+              <article key={i}
+                className="group flex w-full max-w-sm flex-col rounded-2xl bg-amber-50/70 p-8 text-left transition duration-300 hover:-translate-y-1 hover:bg-amber-50 hover:shadow-xl hover:shadow-amber-500/10">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100/80 text-amber-600">
+                    <AlertTriangle className="h-5 w-5" />
                   </div>
-
-                  {/* Meter */}
-                  <div className="flex shrink-0 items-center gap-3.5 md:w-52">
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100" role="meter" aria-valuenow={meterPct(z.risk_level)} aria-valuemin={0} aria-valuemax={100} aria-label={`${z.province} risk: ${z.risk_level}`}>
-                      <div className={`h-full rounded-full ${meterColor(z.risk_level)}`} style={{ width: `${meterPct(z.risk_level)}%` }} />
-                    </div>
-                    <RiskChip level={z.risk_level} />
-                  </div>
+                  <RiskChip level={z.risk_level} />
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
 
-        {/* ═══ PANEL 3 · ADVISORY FEED ═══ */}
-        <section id="announcements" aria-label="Recent announcements">
-          <SectionHead
-            kicker="Government"
-            title="Advisories & Announcements"
-            meta={
-              <Link href="#announcements" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-                Feed archive <ArrowUpRight className="h-3.5 w-3.5" />
-              </Link>
-            }
-          />
-
-          <div className="mt-8 overflow-hidden rounded-2xl border border-brandborder bg-card shadow-sm">
-            {announcements.length === 0 && (
-              <p className="px-6 py-10 text-center text-sm text-textmuted">No announcements yet.</p>
-            )}
-            {announcements.map((a, i) => (
-              <article key={a.id} className={`relative px-6 py-6 transition hover:bg-muted md:px-8 ${i > 0 ? 'border-t border-[#0040E71A]' : ''}`}>
-                {/* timeline dot */}
-                <span aria-hidden="true" className={`absolute left-[13px] top-9 hidden h-2 w-2 rounded-full ring-4 md:block ${
-                  a.severity === 'critical' ? 'bg-danger ring-danger/10' : a.severity === 'warning' ? 'bg-warning ring-warning/15' : 'bg-primary ring-primary/10'}`} />
-
-                <div className="md:pl-8">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                    <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
-                      a.severity === 'critical' ? 'bg-danger/10 text-red-700' : a.severity === 'warning' ? 'bg-warning/15 text-yellow-800' : 'bg-primary/10 text-primary'}`}>
-                      {a.source}
-                    </span>
-                    {a.severity !== 'info' && (
-                      <span className={`inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide ${
-                        a.severity === 'critical' ? 'text-danger' : 'text-yellow-700'}`}>
-                        <AlertTriangle className="h-3 w-3" /> {a.severity} advisory
-                      </span>
-                    )}
-                    <time className="ml-auto text-xs text-slate-400">{a.published_at}</time>
-                  </div>
-
-                  <h3 className="mt-2.5 text-[15px] font-semibold leading-snug tracking-tight text-textprimary">{a.title}</h3>
-                  <p className="mt-1.5 max-w-4xl text-sm leading-[1.75] text-textmuted">{a.body}</p>
-                </div>
+                <h3 className="mt-5 text-lg font-bold tracking-tight text-textprimary">{z.province}</h3>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-400">{z.region}</p>
+                <p className="mt-3 flex-1 text-sm leading-[1.75] text-slate-600">{z.predicted_cause}</p>
               </article>
             ))}
           </div>
         </section>
+      )}
+
+      {/* ── SECTION 4 · ADVISORIES ─────────────────────────────── */}
+      <section id="announcements" aria-label="Recent announcements">
+        <SectionIntro
+          kicker="Government"
+          title="Advisories,"
+          highlight="Transparent."
+          sub="Official announcements from DOE, DOLE, NGCP, and LGUs — published straight to the public, no middleman."
+        />
+
+        <div className="mx-auto mt-12 flex max-w-5xl flex-wrap justify-center gap-6 md:mt-16">
+          {announcements.length === 0 && (
+            <p className="w-full rounded-2xl bg-tint px-6 py-10 text-center text-sm text-textmuted">No announcements yet.</p>
+          )}
+          {announcements.map((a) => (
+            <article key={a.id} className="flex w-full max-w-md flex-col rounded-2xl bg-tint/70 p-8 text-left transition duration-300 hover:-translate-y-1 hover:bg-tint hover:shadow-xl hover:shadow-[#0040E7]/10">
+              <div className="flex items-center justify-between gap-3">
+                <span className={`rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                  a.severity === 'critical' ? 'bg-red-100 text-red-700' : a.severity === 'warning' ? 'bg-amber-100 text-yellow-800' : 'bg-[#E0E9FF] text-primary'}`}>
+                  {a.source}
+                </span>
+                {a.severity !== 'info' && (
+                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${
+                    a.severity === 'critical' ? 'text-red-600' : 'text-yellow-700'}`}>
+                    <AlertTriangle className="h-3.5 w-3.5" /> {a.severity} advisory
+                  </span>
+                )}
+              </div>
+
+              <h3 className="mt-4 text-lg font-bold leading-snug tracking-tight text-textprimary">{a.title}</h3>
+              <p className="mt-3 flex-1 text-sm leading-[1.8] text-slate-600">{a.body}</p>
+
+              <div className="mt-6 flex items-center justify-between gap-3 border-t border-[#0040E71A] pt-4">
+                <time className="text-xs text-slate-400">{a.published_at}</time>
+                <Link href="/map" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                  View affected areas <ArrowUpRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
       </div>
 
       {/* ── CTA BAND (contained) ────────────────────────────────── */}
@@ -225,45 +212,39 @@ export default function Home({ greeting, metrics = {}, announcements = [], riskZ
   )
 }
 
-/* ── Panel building blocks ─────────────────────────────────── */
-
-function SectionHead({ kicker, title, meta }) {
+/* ── e.gov.ph section intro: centered kicker + big title w/ blue span + sub ── */
+function SectionIntro({ kicker, title, highlight, sub }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <span className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">{kicker}</span>
-        <h2 className="mt-1.5 text-2xl font-bold tracking-tight text-textprimary md:text-[1.75rem]">{title}</h2>
-      </div>
-      {meta}
+    <div className="mx-auto max-w-2xl text-center">
+      <span className="text-xs font-bold uppercase tracking-[0.25em] text-primary">{kicker}</span>
+      <h2 className="mt-4 text-balance text-3xl font-bold leading-tight tracking-tight text-textprimary md:text-[2.75rem] md:leading-[1.15]">
+        {title} <span className="text-primary">{highlight}</span>
+      </h2>
+      {sub && <p className="mt-5 text-[15px] leading-[1.85] text-textmuted md:text-base">{sub}</p>}
     </div>
   )
 }
 
-function Cell({ icon, tone, label, value, note }) {
+/* ── Soft tinted stat tile (e.gov.ph feature-card style) ───── */
+function StatTile({ icon, tone, chip, label, value, note }) {
   return (
-    <div className="group p-6 transition-colors duration-200 hover:bg-muted/60 lg:p-7">
-      <div className="flex items-center gap-3">
-        <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${tone}`}>{icon}</span>
-        <span className="text-xs font-medium uppercase tracking-wide text-textmuted">{label}</span>
-      </div>
-      <div className="mt-4 text-4xl font-bold tracking-tight text-textprimary transition-transform duration-200 group-hover:translate-x-0.5">{value}</div>
-      <div className="mt-1 text-xs text-slate-400">{note}</div>
+    <div className={`rounded-2xl ${tone} p-8 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5`}>
+      <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${chip} shadow-sm`}>{icon}</div>
+      <div className="mt-5 text-4xl font-bold tracking-tight text-textprimary">{value}</div>
+      <h3 className="mt-2 text-sm font-semibold text-textprimary">{label}</h3>
+      <p className="mt-1 text-xs leading-relaxed text-slate-500">{note}</p>
     </div>
   )
 }
 
 function RiskChip({ level }) {
   const map = {
-    critical: ['bg-danger text-white', 'Critical'],
-    high: ['bg-warning text-white', 'High'],
-    medium: ['bg-accent/30 text-yellow-800', 'Medium'],
-    low: ['bg-success/10 text-emerald-700', 'Low'],
+    critical: ['bg-red-100 text-red-700', 'Critical'],
+    high: ['bg-amber-200 text-amber-800', 'High'],
+    medium: ['bg-amber-100 text-yellow-800', 'Medium'],
+    low: ['bg-emerald-100 text-emerald-700', 'Low'],
   }
   const [cls, label] = map[level] || map.low
-  return <span className={`w-20 shrink-0 rounded-full px-2.5 py-1 text-center text-xs font-bold capitalize ${cls}`}>{label}</span>
+  return <span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${cls}`}>{label}</span>
 }
 
-const meterPct = (level) => ({ critical: 100, high: 82, medium: 58, low: 28 }[level] ?? 28)
-const meterColor = (level) => ({ critical: 'bg-danger', high: 'bg-warning', medium: 'bg-accent', low: 'bg-success' }[level] ?? 'bg-success')
-
-function StatCard() { return null }
