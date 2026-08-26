@@ -1,11 +1,13 @@
 import { Link } from '@inertiajs/react'
-import { Zap, MapPin, FileText, ShieldCheck, ChevronRight, BadgeCheck, AlertTriangle, ArrowUpRight, Radio } from 'lucide-react'
+import { Zap, MapPin, FileText, ShieldCheck, ChevronRight, BadgeCheck, ArrowUpRight, Brain, Users, Lock, Radar, FileCheck2, Network, MousePointerClick, Landmark, BrainCircuit } from 'lucide-react'
+import Reveal from '../Components/Reveal'
 
 /**
- * Homepage — e.gov.ph visual language:
- * full-screen hero → centered section intros + soft tinted cards → contained CTA.
+ * Landing page — pure system overview, e.gov.ph structure:
+ * Hero → Challenge → Features → How It Works → Security → CTA.
+ * Live data lives on /monitoring.
  */
-export default function Home({ greeting, metrics = {}, announcements = [], riskZones = [], myReportsCount = 0, myActivePermits = 0, auth = {} }) {
+export default function Home({ greeting, myReportsCount = 0, myActivePermits = 0, auth = {} }) {
   const user = auth?.user
 
   return (
@@ -32,32 +34,32 @@ export default function Home({ greeting, metrics = {}, announcements = [], riskZ
         />
 
         <div className="relative mx-auto w-full max-w-4xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-brandborder bg-white px-4 py-1.5 text-xs font-semibold text-primary shadow-sm">
+          <span className="hero-in inline-flex items-center gap-1.5 rounded-full border border-brandborder bg-white px-4 py-1.5 text-xs font-semibold text-primary shadow-sm">
             <BadgeCheck className="h-4 w-4" /> National Energy Intelligence Platform
           </span>
 
-          <h1 className="mx-auto mt-7 text-balance text-5xl font-bold leading-[1.1] tracking-tight text-textprimary md:text-6xl lg:text-7xl">
+          <h1 className="hero-in mx-auto mt-7 text-balance text-5xl font-bold leading-[1.1] tracking-tight text-textprimary md:text-6xl lg:text-7xl" style={{ animationDelay: '100ms' }}>
             All Grid Intelligence.
             <span className="block text-primary">One Platform.</span>
           </h1>
-          <p className="mx-auto mt-7 max-w-xl text-base font-light leading-[1.85] text-textmuted md:text-lg">
-            Filipino citizens deserve real-time answers during the energy emergency. Report outages,
-            track permits, and see government response — live on one national map.
+          <p className="hero-in mx-auto mt-7 max-w-xl text-base font-light leading-[1.85] text-textmuted md:text-lg" style={{ animationDelay: '200ms' }}>
+            eWattPH connects citizens, LGUs, and national agencies into one live picture of the
+            Philippine power grid — report outages, track permits, and respond faster during the energy emergency.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3.5">
-            <Link href="/reports/create"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-sm font-medium text-white shadow-xl shadow-[#0040E7]/25 transition hover:bg-primary/90">
-              <Zap className="h-4 w-4" /> Report an Outage
+          <div className="hero-in mt-10 flex flex-wrap items-center justify-center gap-3.5" style={{ animationDelay: '300ms' }}>
+            <Link href="/monitoring"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-sm font-medium text-white shadow-xl shadow-[#0040E7]/25 transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:bg-primary/90">
+              <Radar className="h-4 w-4" /> Live Monitoring
             </Link>
-            <Link href="/map"
-              className="inline-flex items-center gap-2 rounded-lg border border-brandborder bg-white/90 px-8 py-3.5 text-sm font-medium text-primary backdrop-blur transition hover:border-primary/40 hover:bg-tint">
-              View Live Map <ChevronRight className="h-4 w-4" />
+            <Link href="/reports/create"
+              className="inline-flex items-center gap-2 rounded-lg border border-brandborder bg-white/90 px-8 py-3.5 text-sm font-medium text-primary backdrop-blur transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:border-primary/40 hover:bg-tint">
+              Report an Outage <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
 
           {user && (
-            <p className="mt-10 text-sm font-medium text-textmuted">
+            <p className="hero-in mt-10 text-sm font-medium text-textmuted" style={{ animationDelay: '400ms' }}>
               {greeting} · <span className="font-semibold text-textprimary">{myReportsCount} reports</span> filed ·{' '}
               <span className="font-semibold text-textprimary">{myActivePermits}</span> permits in process
             </p>
@@ -69,150 +71,220 @@ export default function Home({ greeting, metrics = {}, announcements = [], riskZ
         </div>
       </section>
 
-      {/* ── SECTION 2 · REAL-TIME GRID HEALTH ──────────────────── */}
-      <div className="mx-auto w-full max-w-7xl space-y-24 px-4 py-20 md:space-y-28 md:px-8 md:py-28">
-      <section aria-label="Live power status">
-        <SectionIntro
-          kicker="Real-Time"
-          title="National Power,"
-          highlight="Live."
-          sub="Every number below comes from citizens on the ground — verified by LGUs and updated as the grid responds."
-        />
-
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 md:mt-16 md:gap-7">
-          <StatTile
-            tone="bg-emerald-50/80"
-            chip="bg-emerald-100 text-emerald-600"
-            icon={<ShieldCheck className="h-5 w-5" />}
-            label="Power Reliability"
-            value={`${metrics.power_reliability ?? '–'}%`}
-            note={metrics.power_reliability >= 95 ? 'Grid stable nationwide' : 'Monitor load levels'}
-          />
-          <StatTile
-            tone="bg-red-50/80"
-            chip="bg-red-100 text-red-600"
-            icon={<Zap className="h-5 w-5" />}
-            label="Active Outages"
-            value={metrics.active_outages ?? 0}
-            note="Being responded to by LGU teams"
-          />
-          <StatTile
-            tone="bg-[#F0F4FF]"
-            chip="bg-[#E0E9FF] text-primary"
-            icon={<MapPin className="h-5 w-5" />}
-            label="Citizen Reports"
-            value={metrics.reports_24h ?? 0}
-            note="Submitted in the last 24 hours"
-          />
-          <StatTile
-            tone="bg-emerald-50/80"
-            chip="bg-emerald-100 text-emerald-600"
-            icon={<FileText className="h-5 w-5" />}
-            label="Resolved Today"
-            value={metrics.resolved_today ?? 0}
-            note="Power restored and verified"
-          />
-        </div>
-      </section>
-
-      {/* ── SECTION 3 · AI RISK FORECAST ───────────────────────── */}
-      {riskZones.length > 0 && (
-        <section aria-label="AI risk zones">
+      {/* ── THE CHALLENGE ───────────────────────────────────────── */}
+      <section aria-label="The challenge" className="mx-auto w-full max-w-7xl px-4 py-20 md:px-8 md:py-28">
+        <Reveal>
           <SectionIntro
-            kicker="AI Analytics"
-            title="Outage Risks,"
-            highlight="Predicted."
-            sub="Our predictive model analyzes citizen reports, grid load, and historical patterns to flag high-risk areas 48 hours ahead."
+            kicker="The Challenge"
+            title="An Energy Emergency,"
+            highlight="Answered."
+            sub="Thin reserves, rotational brownouts, and an aging grid — made worse by scattered information and slow, siloed government response."
           />
+        </Reveal>
 
-          <div className="mx-auto mt-12 flex max-w-5xl flex-wrap justify-center gap-6 md:mt-16">
-            {riskZones.map((z, i) => (
-              <article key={i}
-                className="group flex w-full max-w-sm flex-col rounded-2xl bg-amber-50/70 p-8 text-left transition duration-300 hover:-translate-y-1 hover:bg-amber-50 hover:shadow-xl hover:shadow-amber-500/10">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100/80 text-amber-600">
-                    <AlertTriangle className="h-5 w-5" />
-                  </div>
-                  <RiskChip level={z.risk_level} />
-                </div>
-
-                <h3 className="mt-5 text-lg font-bold tracking-tight text-textprimary">{z.province}</h3>
-                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-400">{z.region}</p>
-                <p className="mt-3 flex-1 text-sm leading-[1.75] text-slate-600">{z.predicted_cause}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── SECTION 4 · ADVISORIES ─────────────────────────────── */}
-      <section id="announcements" aria-label="Recent announcements">
-        <SectionIntro
-          kicker="Government"
-          title="Advisories,"
-          highlight="Transparent."
-          sub="Official announcements from DOE, DOLE, NGCP, and LGUs — published straight to the public, no middleman."
-        />
-
-        <div className="mx-auto mt-12 flex max-w-5xl flex-wrap justify-center gap-6 md:mt-16">
-          {announcements.length === 0 && (
-            <p className="w-full rounded-2xl bg-tint px-6 py-10 text-center text-sm text-textmuted">No announcements yet.</p>
-          )}
-          {announcements.map((a) => (
-            <article key={a.id} className="flex w-full max-w-md flex-col rounded-2xl bg-tint/70 p-8 text-left transition duration-300 hover:-translate-y-1 hover:bg-tint hover:shadow-xl hover:shadow-[#0040E7]/10">
-              <div className="flex items-center justify-between gap-3">
-                <span className={`rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
-                  a.severity === 'critical' ? 'bg-red-100 text-red-700' : a.severity === 'warning' ? 'bg-amber-100 text-yellow-800' : 'bg-[#E0E9FF] text-primary'}`}>
-                  {a.source}
-                </span>
-                {a.severity !== 'info' && (
-                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${
-                    a.severity === 'critical' ? 'text-red-600' : 'text-yellow-700'}`}>
-                    <AlertTriangle className="h-3.5 w-3.5" /> {a.severity} advisory
-                  </span>
-                )}
-              </div>
-
-              <h3 className="mt-4 text-lg font-bold leading-snug tracking-tight text-textprimary">{a.title}</h3>
-              <p className="mt-3 flex-1 text-sm leading-[1.8] text-slate-600">{a.body}</p>
-
-              <div className="mt-6 flex items-center justify-between gap-3 border-t border-[#0040E71A] pt-4">
-                <time className="text-xs text-slate-400">{a.published_at}</time>
-                <Link href="/map" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-                  View affected areas <ArrowUpRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            </article>
-          ))}
+        <div className="mt-12 grid gap-6 md:mt-16 md:grid-cols-3">
+          <Reveal delay={0} className="h-full">
+            <FeatureCard
+              icon={<Network className="h-5 w-5" />}
+              title="Fragmented Information"
+            >
+              Outage details live in cooperative hotlines and social feeds. No agency has a single,
+              nationwide, real-time picture of the grid.
+            </FeatureCard>
+          </Reveal>
+          <Reveal delay={90} className="h-full">
+            <FeatureCard
+              icon={<MousePointerClick className="h-5 w-5" />}
+              title="Slow, Blind Response"
+            >
+              By the time an outage is formally confirmed, hours have passed — and crews are
+              dispatched without severity estimates or location clustering.
+            </FeatureCard>
+          </Reveal>
+          <Reveal delay={180} className="h-full">
+            <FeatureCard
+              icon={<FileCheck2 className="h-5 w-5" />}
+              title="Opaque Processes"
+            >
+              Energy permits move through fragmented agency pipelines with zero public visibility,
+              and cross-agency crisis coordination happens over phone calls.
+            </FeatureCard>
+          </Reveal>
         </div>
       </section>
 
-      </div>
+      {/* ── FEATURES / SOLUTION ─────────────────────────────────── */}
+      <section aria-label="Platform features" className="bg-gradient-to-b from-transparent via-[#F0F4FF]/60 to-transparent">
+        <div className="mx-auto w-full max-w-7xl px-4 py-20 md:px-8 md:py-28">
+          <Reveal>
+            <SectionIntro
+              kicker="The Solution"
+              title="One Platform,"
+              highlight="Every Answer."
+              sub="eWattPH fuses citizen reports, AI analysis, and government workflows into a single source of truth for the power grid."
+            />
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 md:mt-16 lg:grid-cols-4">
+            <Reveal delay={0} className="h-full">
+              <FeatureCard
+                icon={<Users className="h-5 w-5" />}
+                title="Crowdsourced Reporting"
+                link="/reports/create"
+              >
+                Any citizen reports an outage in seconds — GPS auto-location, photo, outage type.
+                The grid becomes observable in real time.
+              </FeatureCard>
+            </Reveal>
+            <Reveal delay={90} className="h-full">
+              <FeatureCard
+                icon={<Brain className="h-5 w-5" />}
+                title="AI-Driven Triage"
+                link="/monitoring"
+              >
+                Every report is scored for severity with a probable cause and suggested actions —
+                LGUs dispatch the right resources first.
+              </FeatureCard>
+            </Reveal>
+            <Reveal delay={180} className="h-full">
+              <FeatureCard
+                icon={<FileCheck2 className="h-5 w-5" />}
+                title="Transparent Permits"
+                link="/permits/tracker"
+              >
+                Energy permits are AI pre-screened, routed to the right department, and tracked
+                publicly from submission to decision.
+              </FeatureCard>
+            </Reveal>
+            <Reveal delay={270} className="h-full">
+              <FeatureCard
+                icon={<Landmark className="h-5 w-5" />}
+                title="Multi-Agency Coordination"
+                link="/monitoring"
+              >
+                From barangay to the National Emergency Council — every level of government shares
+                one scoped, audited operational picture.
+              </FeatureCard>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ────────────────────────────────────────── */}
+      <section aria-label="How it works" className="mx-auto w-full max-w-7xl px-4 py-20 md:px-8 md:py-28">
+        <Reveal>
+          <SectionIntro
+            kicker="How It Works"
+            title="From Report to Response"
+            highlight="in Minutes."
+            sub="A closed loop between citizens and government — every report feeds the map, the AI, and the response teams."
+          />
+        </Reveal>
+
+        <div className="mt-12 grid gap-6 md:mt-16 md:grid-cols-3">
+          <Reveal delay={0}>
+            <StepCard
+              number="01"
+              icon={<Zap className="h-5 w-5" />}
+              title="Report"
+              text="A citizen pinpoints an outage on the national map with GPS, a photo, and an outage type — done in under a minute."
+            />
+          </Reveal>
+          <Reveal delay={120}>
+            <StepCard
+              number="02"
+              icon={<BrainCircuit className="h-5 w-5" />}
+              title="AI Analyzes"
+              text="The platform scores severity, predicts the probable cause, and suggests actions — instantly, on every submission."
+            />
+          </Reveal>
+          <Reveal delay={240}>
+            <StepCard
+              number="03"
+              icon={<ShieldCheck className="h-5 w-5" />}
+              title="Government Responds"
+              text="LGU teams verify, dispatch, and resolve. Agencies coordinate on the same live picture, and the public sees progress."
+            />
+          </Reveal>
+        </div>
+
+        <Reveal delay={200}>
+          <div className="mt-12 text-center">
+            <Link href="/monitoring"
+              className="inline-flex items-center gap-2 rounded-lg border border-brandborder bg-white px-6 py-3 text-sm font-medium text-primary transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:border-primary/40 hover:bg-tint">
+              See it live on the Monitoring dashboard <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ── SECURITY ────────────────────────────────────────────── */}
+      <section aria-label="Security and trust" className="bg-gradient-to-b from-transparent via-[#F0F4FF]/60 to-transparent">
+        <div className="mx-auto w-full max-w-7xl px-4 py-20 md:px-8 md:py-28">
+          <Reveal>
+            <SectionIntro
+              kicker="Security"
+              title="Government-Grade,"
+              highlight="Audited."
+              sub="Built for the public sector from day one — every action traceable, every scope enforced, every record protected."
+            />
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 md:mt-16 md:grid-cols-3">
+            <Reveal delay={0} className="h-full">
+              <FeatureCard icon={<Lock className="h-5 w-5" />} title="Encrypted and Audited">
+                Critical actions — verifications, dispatches, permit decisions, role changes — are
+                written to an immutable audit log with actor and IP.
+              </FeatureCard>
+            </Reveal>
+            <Reveal delay={90} className="h-full">
+              <FeatureCard icon={<ShieldCheck className="h-5 w-5" />} title="Strict Role Scoping">
+                Nine government-aligned roles with enforced boundaries: LGU staff only act within
+                their municipality; agencies only within their domain.
+              </FeatureCard>
+            </Reveal>
+            <Reveal delay={180} className="h-full">
+              <FeatureCard icon={<Radar className="h-5 w-5" />} title="Privacy-First AI">
+                User content is sanitized before reaching AI models, no personal data leaves the
+                platform, and citizens can export or review their data anytime.
+              </FeatureCard>
+            </Reveal>
+          </div>
+        </div>
+      </section>
 
       {/* ── CTA BAND (contained) ────────────────────────────────── */}
       <div className="mx-auto w-full max-w-7xl px-4 pb-16 md:px-8">
-        <section aria-label="Call to action" className="rounded-3xl bg-primary px-6 py-16 text-center text-white shadow-2xl shadow-[#0040E7]/25 md:py-20">
-          <div className="mx-auto max-w-2xl">
-            <h2 className="text-balance text-3xl font-bold tracking-tight md:text-4xl">
-              Your Power Grid, <span className="text-accent">In Your Pocket.</span>
-            </h2>
-            <p className="mx-auto mt-5 max-w-md text-sm font-light leading-[1.85] text-blue-100 md:text-[15px]">
-              Join thousands of citizens mapping the national grid in real time. Free for every Filipino, nationwide.
-            </p>
-            {!user && (
-              <Link href="/register"
-                className="mt-8 inline-flex h-12 items-center rounded-lg bg-accent px-8 text-sm font-semibold text-[#1A1A2E] shadow-lg transition hover:brightness-95">
-                Get Started — It's Free
-              </Link>
-            )}
-          </div>
-        </section>
+        <Reveal>
+          <section aria-label="Call to action" className="rounded-3xl bg-primary px-6 py-16 text-center text-white shadow-2xl shadow-[#0040E7]/25 md:py-20">
+            <div className="mx-auto max-w-2xl">
+              <h2 className="text-balance text-3xl font-bold tracking-tight md:text-4xl">
+                Your Power Grid, <span className="text-accent">In Your Pocket.</span>
+              </h2>
+              <p className="mx-auto mt-5 max-w-md text-sm font-light leading-[1.85] text-blue-100 md:text-[15px]">
+                Join thousands of citizens mapping the national grid in real time. Free for every Filipino, nationwide.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                {!user && (
+                  <Link href="/register"
+                    className="inline-flex h-12 items-center rounded-lg bg-accent px-8 text-sm font-semibold text-[#1A1A2E] shadow-lg transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:brightness-95">
+                    Get Started — It's Free
+                  </Link>
+                )}
+                <Link href="/monitoring"
+                  className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/30 px-8 text-sm font-medium text-white transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:bg-white/10">
+                  Open Live Monitoring
+                </Link>
+              </div>
+            </div>
+          </section>
+        </Reveal>
       </div>
     </div>
   )
 }
 
-/* ── e.gov.ph section intro: centered kicker + big title w/ blue span + sub ── */
+/* ── e.gov.ph section intro ─────────────────────────────────── */
 function SectionIntro({ kicker, title, highlight, sub }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
@@ -225,26 +297,41 @@ function SectionIntro({ kicker, title, highlight, sub }) {
   )
 }
 
-/* ── Soft tinted stat tile (e.gov.ph feature-card style) ───── */
-function StatTile({ icon, tone, chip, label, value, note }) {
-  return (
-    <div className={`rounded-2xl ${tone} p-8 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5`}>
-      <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${chip} shadow-sm`}>{icon}</div>
-      <div className="mt-5 text-4xl font-bold tracking-tight text-textprimary">{value}</div>
-      <h3 className="mt-2 text-sm font-semibold text-textprimary">{label}</h3>
-      <p className="mt-1 text-xs leading-relaxed text-slate-500">{note}</p>
-    </div>
+/* ── Minimal white card, #FEF2F2 chip, glass hover ──────────── */
+function FeatureCard({ icon, title, children, link }) {
+  const body = (
+    <>
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FEF2F2] text-[#CE1126]">{icon}</div>
+      <h3 className="mt-6 text-lg font-bold tracking-tight text-textprimary">{title}</h3>
+      <p className="mt-2.5 text-sm leading-[1.75] text-slate-600">{children}</p>
+      {link && (
+        <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 transition duration-500 group-hover:opacity-100">
+          Open <ArrowUpRight className="h-3.5 w-3.5" />
+        </span>
+      )}
+    </>
+  )
+
+  const cls = `group flex h-full w-full flex-col rounded-2xl border border-gray-200/80 bg-white p-8 text-left transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-1.5 hover:border-primary/20 hover:bg-white/50 hover:shadow-xl hover:shadow-[#0040E7]/5 hover:backdrop-blur-md`
+
+  return link ? (
+    <Link href={link} className={cls}>{body}</Link>
+  ) : (
+    <div className={cls}>{body}</div>
   )
 }
 
-function RiskChip({ level }) {
-  const map = {
-    critical: ['bg-red-100 text-red-700', 'Critical'],
-    high: ['bg-amber-200 text-amber-800', 'High'],
-    medium: ['bg-amber-100 text-yellow-800', 'Medium'],
-    low: ['bg-emerald-100 text-emerald-700', 'Low'],
-  }
-  const [cls, label] = map[level] || map.low
-  return <span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${cls}`}>{label}</span>
+/* ── Numbered step card ─────────────────────────────────────── */
+function StepCard({ number, icon, title, text }) {
+  return (
+    <div className="relative flex h-full w-full flex-col rounded-2xl border border-gray-200/80 bg-white p-8 text-left transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-1.5 hover:border-primary/20 hover:bg-white/50 hover:shadow-xl hover:shadow-[#0040E7]/5 hover:backdrop-blur-md">
+      <div className="flex items-center justify-between">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FEF2F2] text-[#CE1126]">{icon}</div>
+        <span className="text-4xl font-bold tracking-tight text-[#FEF2F2] [-webkit-text-stroke:1px_#CE1126]/30" aria-hidden="true"
+          style={{ WebkitTextStroke: '1px rgba(206,17,38,.25)', color: '#FEF2F2' }}>{number}</span>
+      </div>
+      <h3 className="mt-6 text-lg font-bold tracking-tight text-textprimary">{title}</h3>
+      <p className="mt-2.5 text-sm leading-[1.75] text-slate-600">{text}</p>
+    </div>
+  )
 }
-

@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Link, usePage, router } from '@inertiajs/react'
-import { Home, MapPin, FileText, User, Menu, X, Zap } from 'lucide-react'
+import { Home, MapPin, FileText, User, Menu, X, Zap, Radar } from 'lucide-react'
 import Logo from '../Components/Logo'
 import NotificationBell from '../Components/NotificationBell'
 import Footer from '../Components/Footer'
 
 const NAV = [
-  { label: 'Home', href: '/home', icon: Home },
+  { label: 'Home', href: '/', icon: Home },
+  { label: 'Monitoring', href: '/monitoring', icon: Radar },
   { label: 'Live Map', href: '/map', icon: MapPin },
   { label: 'Reports', href: '/reports', icon: FileText, auth: true },
   { label: 'Permits', href: '/permits/tracker', icon: FileText },
@@ -18,12 +19,13 @@ export default function MainLayout({ children }) {
   const unread = auth?.unreadNotifications ?? 0
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // e.gov.ph nav: Features / How It Works / Security / News / FAQ — mapped to eWattPH sections
+  // e.gov.ph nav mapping: Home / Monitoring / Live Map / Reports / Permits (+ role links)
   const links = [
     NAV[0],
     NAV[1],
-    ...(user ? [NAV[2]] : []),
-    NAV[3],
+    NAV[2],
+    ...(user ? [NAV[3]] : []),
+    NAV[4],
     ...(user?.canManageLgu ? [{ label: 'LGU Dashboard', href: '/lgu/dashboard' }] : []),
     ...(user?.isSuperAdmin ? [{ label: 'Admin', href: '/admin/users' }] : []),
   ]
@@ -124,7 +126,7 @@ export default function MainLayout({ children }) {
       {/* Bottom nav (mobile) */}
       {user && (
         <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-brandborder bg-white/95 backdrop-blur-md md:hidden" aria-label="Bottom navigation">
-          {[NAV[0], NAV[1], NAV[2], { label: 'Profile', href: '/profile', icon: User }].filter(Boolean).map(({ label, href, icon: Icon }) => (
+          {[NAV[0], NAV[1], NAV[2], { label: 'Profile', href: '/profile', icon: User }].filter((l) => !l.auth || user).map(({ label, href, icon: Icon }) => (
             <Link key={label} href={href}
               className={`flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium transition ${
                 isActive(href) ? 'text-primary' : 'text-textmuted'}`}>

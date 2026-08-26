@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 // ── Public ─────────────────────────────────────────────────────────────────
 Route::get('/', [DashboardController::class, 'home'])->name('welcome');
 Route::get('/home', [DashboardController::class, 'home'])->name('home');
+Route::get('/monitoring', [\App\Http\Controllers\MonitoringController::class, 'index'])->name('monitoring');
 Route::get('/permits/tracker', [PermitController::class, 'tracker'])->name('permits.tracker');
 
 // Live national map page (guests + citizens)
