@@ -46,8 +46,10 @@ class Lgu extends Model
     public static function nearest(float $latitude, float $longitude): ?self
     {
         return self::query()
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
             ->get()
             ->sortBy(fn (self $lgu) => ($lgu->latitude - $latitude) ** 2 + ($lgu->longitude - $longitude) ** 2)
-            ->first();
+            ->first() ?? self::query()->where('region', 'NCR')->orderBy('name')->first();
     }
 }

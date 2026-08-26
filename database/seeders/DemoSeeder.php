@@ -60,6 +60,19 @@ class DemoSeeder extends Seeder
             ['lat' => 14.5995, 'lng' => 120.9842, 'status' => 'pending', 'type' => 'rotational_blackout', 'sev' => 40, 'desc' => 'Scheduled-looking blackout in Ermita area.', 'hoursAgo' => 2],
             ['lat' => 13.7565, 'lng' => 121.0583, 'status' => 'verified', 'type' => 'transmission_line', 'sev' => 88, 'desc' => 'Industrial zone without power for two hours already.', 'hoursAgo' => 4],
             ['lat' => 14.2119, 'lng' => 121.1653, 'status' => 'pending', 'type' => 'brownout', 'sev' => 35, 'desc' => 'Voltage very low, appliances struggling.', 'hoursAgo' => 8],
+            // ── Visayas ──
+            ['lat' => 10.3157, 'lng' => 123.8854, 'status' => 'verified', 'type' => 'distribution_line', 'sev' => 70, 'desc' => 'Fallen distribution line along the highway, half of the barangay is out.', 'hoursAgo' => 5],
+            ['lat' => 11.2442, 'lng' => 125.0042, 'status' => 'pending', 'type' => 'brownout', 'sev' => 48, 'desc' => 'Intermittent power since early morning in downtown area.', 'hoursAgo' => 7],
+            ['lat' => 10.7202, 'lng' => 122.5621, 'status' => 'pending', 'type' => 'transformer', 'sev' => 66, 'desc' => 'Transformer sparking near the market before the outage.', 'hoursAgo' => 3],
+            ['lat' => 9.6496, 'lng' => 123.8536, 'status' => 'resolved', 'type' => 'brownout', 'sev' => 30, 'desc' => 'Short brownout after the storm passed.', 'hoursAgo' => 22],
+            // ── Mindanao ──
+            ['lat' => 7.1907, 'lng' => 125.4553, 'status' => 'verified', 'type' => 'rotational_blackout', 'sev' => 72, 'desc' => 'Rotational blackout hit the whole district right on schedule.', 'hoursAgo' => 6],
+            ['lat' => 8.4822, 'lng' => 124.6472, 'status' => 'pending', 'type' => 'transmission_line', 'sev' => 80, 'desc' => 'Loud blast from the substation, wide area without power.', 'hoursAgo' => 2],
+            ['lat' => 6.1164, 'lng' => 125.1716, 'status' => 'pending', 'type' => 'brownout', 'sev' => 44, 'desc' => 'No power in the port area for over an hour.', 'hoursAgo' => 9],
+            ['lat' => 6.9214, 'lng' => 122.0790, 'status' => 'resolved', 'type' => 'distribution_line', 'sev' => 52, 'desc' => 'Crews fixed the line early this morning.', 'hoursAgo' => 16],
+            // ── Northern Luzon ──
+            ['lat' => 16.4023, 'lng' => 120.5960, 'status' => 'pending', 'type' => 'brownout', 'sev' => 38, 'desc' => 'Flickering voltage in the evening, appliances acting up.', 'hoursAgo' => 11],
+            ['lat' => 17.6132, 'lng' => 121.7270, 'status' => 'verified', 'type' => 'transformer', 'sev' => 68, 'desc' => 'Transformer blew near the public market, whole street is dark.', 'hoursAgo' => 4],
         ];
 
         foreach ($reports as $i => $r) {
@@ -111,16 +124,19 @@ class DemoSeeder extends Seeder
 
         AiAnalysis::create([
             'type' => 'risk_assessment',
-            'region' => 'NCR',
+            'region' => 'National',
             'data' => [
                 'source' => 'mock',
                 'generated_at' => now()->toIso8601String(),
                 'risk_zones' => [
                     ['region' => 'NCR', 'province' => 'Metro Manila', 'risk_level' => 'medium', 'predicted_cause' => 'Transformer overloads during peak demand'],
                     ['region' => 'CALABARZON', 'province' => 'Batangas', 'risk_level' => 'high', 'predicted_cause' => 'Transmission constraint affecting industrial loads'],
+                    ['region' => 'Region VII', 'province' => 'Cebu', 'risk_level' => 'high', 'predicted_cause' => 'Distribution line failures under storm recovery load'],
+                    ['region' => 'Region XI', 'province' => 'Davao del Sur', 'risk_level' => 'medium', 'predicted_cause' => 'Sustained rotational blackouts from reserve deficiency'],
+                    ['region' => 'Region X', 'province' => 'Misamis Oriental', 'risk_level' => 'high', 'predicted_cause' => 'Substation capacity constraint on the northern corridor'],
                 ],
-                'recommended_actions' => ['Pre-position crews in high-risk areas', 'Issue public advisory for rotational brownouts'],
-                'affected_sectors' => ['Residential', 'Industrial zones'],
+                'recommended_actions' => ['Pre-position crews in high-risk areas nationwide', 'Issue public advisory for rotational brownouts', 'Coordinate NGCP inter-regional transfer limits'],
+                'affected_sectors' => ['Residential', 'Industrial zones', 'Commercial establishments', 'Agriculture'],
             ],
             'created_at' => now(),
         ]);

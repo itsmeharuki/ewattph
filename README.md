@@ -167,7 +167,7 @@ Nine hierarchical roles mirror the structure of the Philippine government, each 
 
 **For the public trust** — every verification, dispatch, permit decision, and role change is written to an immutable audit log. Government response becomes measurable: reports per hour, average response time, resolution rate — all visible on the public dashboard.
 
-**Scalability** — the pilot covers Metro Manila and CALABARZON (10 LGUs seeded) and is architected to scale to all 1,600+ LGUs and every national energy agency without structural change.
+**Scalability** — the demonstration dataset covers 67 LGUs across all 17 Philippine regions (NCR to BARMM) with nationwide demo activity, and the platform is architected to scale to the full PSGC master list of 1,600+ LGUs and every national energy agency without structural change. The competition pilot focuses on Metro Manila and CALABARZON with full citizen and LGU staff workflows.
 
 ---
 

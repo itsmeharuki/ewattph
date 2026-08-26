@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\PlacesController;
 use App\Http\Controllers\Api\PublicController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -25,6 +26,7 @@ Route::prefix('api/public')->middleware('throttle:60,1')->group(function () {
     Route::get('/map', [PublicController::class, 'map'])->name('api.public.map');
     Route::get('/metrics', [PublicController::class, 'metrics'])->name('api.public.metrics');
     Route::get('/announcements', [PublicController::class, 'announcements'])->name('api.public.announcements');
+    Route::get('/places', [PlacesController::class, 'index'])->name('api.public.places');
 });
 
 // ── Auth ───────────────────────────────────────────────────────────────────

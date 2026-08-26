@@ -18,18 +18,18 @@ export const inputCls = (error) =>
 /** Shared auth shell — consistent with the main eGovPH-style UI */
 export function AuthShell({ title, subtitle, children, footer }) {
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-4 py-10">
+    <div className="flex min-h-dvh flex-col items-center px-4 pb-16 pt-20 md:pt-24">
       <Link href="/" aria-label="eWattPH home">
         <Logo size="h-11" />
       </Link>
 
-      <div className="mt-6 w-full max-w-md rounded-2xl border border-brandborder bg-card p-8 shadow-xl shadow-[#0040E7]/5">
-        <h1 className="text-center text-xl font-bold tracking-tight text-textprimary">{title}</h1>
-        <p className="mt-1.5 text-center text-sm font-light text-textmuted">{subtitle}</p>
-        <div className="mt-7">{children}</div>
+      <div className="mt-12 w-full max-w-sm">
+        <h1 className="text-center text-2xl font-bold tracking-tight text-textprimary">{title}</h1>
+        <p className="mt-2 text-center text-sm font-light text-textmuted">{subtitle}</p>
+        <div className="mt-8">{children}</div>
       </div>
 
-      <div className="mt-6 text-center text-sm text-textmuted">{footer}</div>
+      <div className="mt-10 text-center text-sm text-textmuted">{footer}</div>
     </div>
   )
 }

@@ -1,10 +1,17 @@
-import { useState } from 'react'
-import { router } from '@inertiajs/react'
+import { useState, useMemo } from 'react'
+import { router, usePage } from '@inertiajs/react'
 import { Crosshair } from 'lucide-react'
+import LocationPicker from '../../Components/LocationPicker'
 
-export default function Create({ lgus }) {
+export default function Create({ lgus, selectedLgu = null }) {
+  const { url } = usePage()
+  const queryLguId = useMemo(() => {
+    const params = new URLSearchParams(url.split('?')[1] || '')
+    return params.get('lgu_id') || ''
+  }, [url])
+
   const [data, setData] = useState({
-    lgu_id: '',
+    lgu_id: queryLguId,
     latitude: '',
     longitude: '',
     outage_type: 'other',
@@ -80,15 +87,13 @@ export default function Create({ lgus }) {
         </div>
 
         <div>
-          <label htmlFor="lgu" className="mb-1 block text-sm font-medium text-textmuted">City / Municipality</label>
-          <select id="lgu" required value={data.lgu_id}
-            onChange={(e) => setData({ ...data, lgu_id: e.target.value })}
-            className="h-12 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm">
-            <option value="">Select your city/municipality…</option>
-            {lgus.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}, {l.province}</option>
-            ))}
-          </select>
+          <label className="mb-1 block text-sm font-medium text-textmuted">City / Municipality</label>
+          <LocationPicker
+            value={selectedLgu || lgus.find(l => String(l.id) === String(data.lgu_id)) || null}
+            onChange={(lgu) => setData({ ...data, lgu_id: lgu ? String(lgu.id) : '' })}
+            placeholder="Hanapin ang city / municipality…"
+            compact
+          />
           {errors.lgu_id && <p role="alert" className="mt-1 text-xs font-medium text-danger">{errors.lgu_id}</p>}
         </div>
 

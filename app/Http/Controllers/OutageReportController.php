@@ -33,8 +33,16 @@ class OutageReportController extends Controller
 
     public function create(Request $request)
     {
+        $lgus = \App\Models\Lgu::orderBy('name')->get(['id', 'name', 'province', 'region', 'latitude', 'longitude']);
+        $selectedLgu = null;
+
+        if ($lguId = $request->query('lgu_id')) {
+            $selectedLgu = $lgus->firstWhere('id', $lguId)?->only(['id', 'name', 'province', 'region']);
+        }
+
         return inertia('Reports/Create', [
-            'lgus' => \App\Models\Lgu::orderBy('name')->get(['id', 'name', 'province', 'latitude', 'longitude']),
+            'lgus' => $lgus,
+            'selectedLgu' => $selectedLgu,
         ]);
     }
 
