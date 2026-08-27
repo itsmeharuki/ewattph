@@ -21,12 +21,13 @@ export default function Register() {
       title="Create your account"
       subtitle="Report outages and track permits with eWattPH"
       footer={
-        <>
-          Already registered?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">Log in</Link>
-          <span className="mx-2 text-slate-300">·</span>
-          <Link href="/" className="font-medium text-primary hover:underline">Back to home</Link>
-        </>
+        <div className="flex flex-col items-center gap-3">
+          <p>
+            Already registered?{' '}
+            <Link href="/login" className="font-semibold text-primary hover:underline">Log in</Link>
+          </p>
+          <Link href="/" className="text-xs text-textmuted hover:text-primary hover:underline">Back to home</Link>
+        </div>
       }
     >
       <form onSubmit={submit} className="space-y-5">
@@ -48,7 +49,7 @@ export default function Register() {
         </Field>
         <button type="submit" disabled={processing}
           className="h-12 w-full rounded-lg bg-primary font-medium text-white shadow-md shadow-[#0040E7]/25 transition hover:bg-primary/90 disabled:opacity-60">
-          {processing ? 'Creating account…' : 'Sign up — It\'s free'}
+          {processing ? 'Creating account...' : "Sign up — It's free"}
         </button>
       </form>
     </AuthShell>

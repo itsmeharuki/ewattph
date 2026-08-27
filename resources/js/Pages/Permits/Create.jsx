@@ -62,7 +62,7 @@ export default function Create({ lgus, agencies }) {
           <textarea id="pdesc" rows={4} required maxLength={3000} value={data.description}
             onChange={(e) => setData({ ...data, description: e.target.value })}
             className="w-full rounded-lg border border-gray-300 p-3 text-sm"
-            placeholder="Describe your project (capacity, location details, timeline…)" />
+            placeholder="Describe your project (capacity, location details, timeline...)" />
           {errors.description && <p role="alert" className="mt-1 text-xs font-medium text-danger">{errors.description}</p>}
         </div>
 
@@ -76,7 +76,7 @@ export default function Create({ lgus, agencies }) {
 
         <button type="submit" disabled={processing || !data.lgu_id && !data.agency_id}
           className="h-12 w-full rounded-lg bg-primary font-semibold text-white hover:bg-primary-dark disabled:opacity-60">
-          {processing ? 'Submitting & pre-screening…' : 'Submit Application'}
+          {processing ? 'Submitting & pre-screening...' : 'Submit Application'}
         </button>
       </form>
     </div>

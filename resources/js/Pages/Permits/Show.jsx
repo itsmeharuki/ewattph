@@ -75,12 +75,12 @@ export default function Show({ permit, auth = {} }) {
             <option value="approved">Approve</option>
             <option value="rejected">Reject</option>
           </select>
-          <textarea rows={3} placeholder="Comments / decision notes…" value={decisionForm.note}
+          <textarea rows={3} placeholder="Comments / decision notes..." value={decisionForm.note}
             onChange={(e) => setDecisionForm({ ...decisionForm, note: e.target.value })}
             className="w-full rounded-lg border border-gray-300 p-3 text-sm" />
           <button type="submit" disabled={processing}
             className="h-12 w-full rounded-lg bg-primary font-semibold text-white hover:bg-primary-dark disabled:opacity-60">
-            {processing ? 'Saving…' : 'Record Decision'}
+            {processing ? 'Saving...' : 'Record Decision'}
           </button>
         </form>
       )}

@@ -18,15 +18,16 @@ export default function Login() {
 
   return (
     <AuthShell
-      title="Welcome back"
-      subtitle="Log in to your eWattPH account"
+      title="Login"
+      subtitle="Sign in to your eWattPH account"
       footer={
-        <>
-          No account yet?{' '}
-          <Link href="/register" className="font-medium text-primary hover:underline">Create one</Link>
-          <span className="mx-2 text-slate-300">·</span>
-          <Link href="/" className="font-medium text-primary hover:underline">Back to home</Link>
-        </>
+        <div className="flex flex-col items-center gap-3">
+          <p>
+            No account yet?{' '}
+            <Link href="/register" className="font-semibold text-primary hover:underline">Create one</Link>
+          </p>
+          <Link href="/" className="text-xs text-textmuted hover:text-primary hover:underline">Back to home</Link>
+        </div>
       }
     >
       <form onSubmit={submit} className="space-y-5">
@@ -45,14 +46,9 @@ export default function Login() {
         </label>
         <button type="submit" disabled={processing}
           className="h-12 w-full rounded-lg bg-primary font-medium text-white shadow-md shadow-[#0040E7]/25 transition hover:bg-primary/90 disabled:opacity-60">
-          {processing ? 'Logging in…' : 'Log in'}
+          {processing ? 'Logging in...' : 'Log in'}
         </button>
       </form>
-
-      {/* Demo hint */}
-      <p className="mt-6 rounded-xl bg-tint px-4 py-3 text-center text-xs text-textmuted">
-        Demo: <span className="font-medium text-textprimary">juan@example.com</span> / password
-      </p>
     </AuthShell>
   )
 }

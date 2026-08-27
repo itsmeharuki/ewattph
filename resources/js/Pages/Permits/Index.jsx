@@ -9,9 +9,11 @@ export default function PermitsIndex({ permits, isPublicTracker = false }) {
           <h1 className="text-2xl font-bold">{isPublicTracker ? 'Public Permit Tracker' : 'My Permit Applications'}</h1>
           <p className="text-sm text-textmuted">Transparent energy permit tracking — from application to approval.</p>
         </div>
-        <Link href="/permits/apply" className="h-11 rounded-lg bg-primary px-4 inline-flex items-center font-semibold text-white hover:bg-primary-dark">
-          + Apply for a Permit
-        </Link>
+        {!isPublicTracker && (
+          <Link href="/permits/apply" className="h-11 rounded-lg bg-primary px-4 inline-flex items-center font-semibold text-white hover:bg-primary-dark">
+            + Apply for a Permit
+          </Link>
+        )}
       </div>
 
       {permits.data.length === 0 ? (
@@ -24,8 +26,8 @@ export default function PermitsIndex({ permits, isPublicTracker = false }) {
             <li key={p.id}>
               <Link href={`/permits/${p.id}`} className="block rounded-2xl border border-brandborder bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-semibold">
-                    #{String(p.id).padStart(6, '0')} — {p.permit_type.replace(/_/g, ' ')}
+                  <span className="font-semibold capitalize">
+                    {p.permit_type.replace(/_/g, ' ')}
                   </span>
                   <StatusBadge status={p.status} />
                 </div>
