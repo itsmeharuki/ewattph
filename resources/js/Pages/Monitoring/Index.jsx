@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Link, router } from '@inertiajs/react'
 import { Zap, MapPin, ShieldCheck, AlertTriangle, Megaphone, Clock, ExternalLink } from 'lucide-react'
 import Reveal from '../../Components/Reveal'
@@ -12,14 +12,12 @@ const PER_PAGE = 3
 
 export default function MonitoringIndex({ metrics = {}, announcements = [], riskZones = [], selectedLgu = null }) {
   const [tab, setTab] = useState('all')
-  const [riskPage, setRiskPage] = useState(0)
   const [advisoryPage, setAdvisoryPage] = useState(0)
+  const [expanded, setExpanded] = useState({})
 
   const show = (key) => tab === 'all' || tab === key
 
-  const riskTotal = Math.ceil(riskZones.length / PER_PAGE)
   const advisoryTotal = Math.ceil(announcements.length / PER_PAGE)
-  const pagedRisks = riskZones.slice(riskPage * PER_PAGE, riskPage * PER_PAGE + PER_PAGE)
   const pagedAdvisories = announcements.slice(advisoryPage * PER_PAGE, advisoryPage * PER_PAGE + PER_PAGE)
 
   const tabs = [
@@ -108,36 +106,7 @@ export default function MonitoringIndex({ metrics = {}, announcements = [], risk
                   Walang alerts
                 </div>
               ) : (
-                <>
-                  <div className="divide-y divide-gray-100">
-                    {pagedRisks.map((z, i) => (
-                      <div key={i} className="px-5 py-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-sm font-medium text-textprimary">{z.province}</span>
-                            <span className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
-                              z.risk_level === 'critical' ? 'bg-red-100 text-red-700'
-                                : z.risk_level === 'high' ? 'bg-orange-100 text-orange-700'
-                                : 'bg-amber-100 text-amber-700'
-                            }`}>
-                              {z.risk_level}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-textmuted mt-1.5 leading-relaxed">{z.predicted_cause}</p>
-                      </div>
-                    ))}
-                  </div>
-                  {riskTotal > 1 && (
-                    <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
-                      <button onClick={() => setRiskPage(Math.max(0, riskPage - 1))} disabled={riskPage === 0}
-                        className="text-xs font-medium text-primary disabled:text-slate-300">← Previous</button>
-                      <span className="text-[11px] text-slate-400">{riskPage + 1} / {riskTotal}</span>
-                      <button onClick={() => setRiskPage(Math.min(riskTotal - 1, riskPage + 1))} disabled={riskPage >= riskTotal - 1}
-                        className="text-xs font-medium text-primary disabled:text-slate-300">Next →</button>
-                    </div>
-                  )}
-                </>
+                <RiskCarousel zones={riskZones} />
               )}
             </div>
           </Reveal>
@@ -157,22 +126,31 @@ export default function MonitoringIndex({ metrics = {}, announcements = [], risk
               ) : (
                 <>
                   <div className="divide-y divide-gray-100">
-                    {pagedAdvisories.map((a) => (
-                      <div key={a.id} className="px-5 py-4">
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary/10 text-primary text-[10px] font-bold">
-                            {a.source?.slice(0, 3)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-textprimary truncate leading-relaxed">{a.title}</p>
-                            <p className="text-xs text-textmuted mt-1.5 leading-relaxed line-clamp-2">{a.body}</p>
-                            <div className="flex items-center gap-2 mt-2 text-[11px] text-slate-400">
-                              <Clock className="h-3 w-3" /> {a.published_at}
+                    {pagedAdvisories.map((a) => {
+                      const isOpen = expanded[a.id]
+                      return (
+                        <div key={a.id} className="px-5 py-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary/10 text-primary text-[10px] font-bold">
+                              {a.source?.slice(0, 3)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-textprimary truncate leading-relaxed">{a.title}</p>
+                              <p className={`text-xs text-textmuted mt-1.5 leading-relaxed ${isOpen ? '' : 'line-clamp-2'}`}>{a.body}</p>
+                              {a.body && a.body.length > 80 && (
+                                <button onClick={() => setExpanded(prev => ({ ...prev, [a.id]: !prev[a.id] }))}
+                                  className="mt-1 text-[11px] font-medium text-primary hover:underline">
+                                  {isOpen ? 'Isara' : 'Basahin pa →'}
+                                </button>
+                              )}
+                              <div className="flex items-center gap-2 mt-2 text-[11px] text-slate-400">
+                                <Clock className="h-3 w-3" /> {a.published_at}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                   {advisoryTotal > 1 && (
                     <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
@@ -189,6 +167,84 @@ export default function MonitoringIndex({ metrics = {}, announcements = [], risk
           </Reveal>
         )}
       </div>
+    </div>
+  )
+}
+
+function RiskCarousel({ zones }) {
+  const scrollRef = useRef(null)
+  const [atStart, setAtStart] = useState(true)
+  const [atEnd, setAtEnd] = useState(false)
+  const [activeIdx, setActiveIdx] = useState(0)
+
+  const checkEdges = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    setAtStart(el.scrollLeft <= 4)
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 4)
+    // Determine active card
+    const cardW = el.firstChild?.offsetWidth ?? 1
+    setActiveIdx(Math.round(el.scrollLeft / (cardW + 12)))
+  }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    checkEdges()
+    el.addEventListener('scroll', checkEdges, { passive: true })
+    return () => el.removeEventListener('scroll', checkEdges)
+  }, [checkEdges])
+
+  const riskStyle = (level) => {
+    if (level === 'critical') return { accent: '#CE1126', bg: 'bg-red-50', border: 'border-red-200', badge: 'bg-red-100 text-red-700', icon: 'text-red-500' }
+    if (level === 'high') return { accent: '#EA580C', bg: 'bg-orange-50', border: 'border-orange-200', badge: 'bg-orange-100 text-orange-700', icon: 'text-orange-500' }
+    return { accent: '#D97706', bg: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-100 text-amber-700', icon: 'text-amber-500' }
+  }
+
+  return (
+    <div className="relative py-3">
+      {/* Left edge fade */}
+      {!atStart && (
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 z-10 bg-gradient-to-r from-white via-white/80 to-transparent" />
+      )}
+      {/* Right edge fade */}
+      {!atEnd && (
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 z-10 bg-gradient-to-l from-white via-white/80 to-transparent" />
+      )}
+
+      <div ref={scrollRef} className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory px-5 pb-1" style={{ scrollbarWidth: 'none' }}>
+        {zones.map((z, i) => {
+          const s = riskStyle(z.risk_level)
+          const isActive = i === activeIdx
+          return (
+            <div key={i} className={`snap-start shrink-0 w-[78%] sm:w-[62%] rounded-xl border ${s.border} ${s.bg} p-4 transition-all duration-300 ${isActive ? 'shadow-md scale-[1.02]' : 'opacity-50 scale-[0.97]'}`}>
+              <div className="flex items-start gap-3">
+                <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${s.bg} ${s.icon}`}>
+                  <AlertTriangle className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold text-textprimary truncate">{z.province}</span>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${s.badge}`}>
+                      {z.risk_level}
+                    </span>
+                  </div>
+                  <p className="text-xs text-textmuted mt-1.5 leading-relaxed">{z.predicted_cause}</p>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Dot indicators */}
+      {zones.length > 1 && (
+        <div className="flex justify-center gap-1.5 mt-3">
+          {zones.map((_, i) => (
+            <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 bg-primary' : 'w-1.5 bg-gray-300'}`} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
