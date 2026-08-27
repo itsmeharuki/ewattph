@@ -21,7 +21,13 @@ class PublicController extends Controller
                 ->with('lgu:id,name,province')
                 ->get(['id', 'lgu_id', 'latitude', 'longitude', 'status', 'outage_type', 'ai_severity_score', 'created_at']);
 
-            $riskZones = AiAnalysis::latest('id')->where('type', 'risk_assessment')->first()?->data['risk_zones'] ?? [];
+            $rawZones = AiAnalysis::latest('id')->where('type', 'risk_assessment')->first()?->data['risk_zones'] ?? [];
+
+            // Enrich risk zones with coordinates from lgus table
+            $riskZones = collect($rawZones)->map(function ($z) {
+                $lgu = \App\Models\Lgu::where('province', $z['province'] ?? '')->first();
+                return [...$z, 'lat' => $lgu?->latitude, 'lng' => $lgu?->longitude];
+            })->filter(fn ($z) => $z['lat'] && $z['lng'])->values()->all();
 
             return [
                 'reports' => $reports->map(fn ($r) => [
@@ -33,7 +39,7 @@ class PublicController extends Controller
                     'severity' => $r->ai_severity_score,
                     'lgu' => $r->lgu?->name,
                     'reported_at' => $r->created_at->toIso8601String(),
-                ]),
+                ])->toArray(),
                 'risk_zones' => $riskZones,
             ];
         });
