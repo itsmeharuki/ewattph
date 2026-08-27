@@ -22,15 +22,18 @@ class DemoSeeder extends Seeder
         $qc = Lgu::where('name', 'Quezon City')->first();
 
         $users = [
-            ['Super Admin', 'admin@ewattph.gov', 'super_admin', null, null],
-            ['Maria Santos', 'lgu.staff@quezoncity.gov.ph', 'lgu_staff', 'Quezon City', null],
-            ['Engr. Jose Reyes', 'lgu.admin@quezoncity.gov.ph', 'lgu_admin', 'Quezon City', null],
-            ['Gov. Ana Dela Cruz', 'provincial@calabarzon.gov.ph', 'provincial_admin', null, null],
-            ['Engr. Carlo Mendoza', 'staff@doe.gov.ph', 'agency_staff', null, 'DOE'],
-            ['Sec. Rafael Lim', 'head@doe.gov.ph', 'agency_head', null, 'DOE'],
-            ['Dir. Elena Torres', 'council@ndrrmc.gov.ph', 'national_council', null, null],
-            ['Juan dela Cruz', 'juan@example.com', 'citizen', null, null],
-            ['Pedro Ramos', 'pedro@example.com', 'citizen', null, null],
+            ['Super Admin', 'admin@ewattph.gov.ph', 'super_admin', null, null],
+            ['National Emergency Council', 'nec@ewattph.gov.ph', 'national_council', null, null],
+            ['Sec. Rafael Lim', 'doe.secretary@ewattph.gov.ph', 'agency_head', null, 'DOE'],
+            ['Engr. Carlo Mendoza', 'doe.staff@ewattph.gov.ph', 'agency_staff', null, 'DOE'],
+            ['Dir. Elena Torres', 'dole.staff@ewattph.gov.ph', 'agency_staff', null, 'DOLE'],
+            ['Gov. Ana Dela Cruz', 'governor.batangas@ewattph.gov.ph', 'provincial_admin', 'Batangas City', null],
+            ['QC Mayor', 'qc.mayor@ewattph.gov.ph', 'lgu_admin', 'Quezon City', null],
+            ['Maria Santos', 'qc.staff@ewattph.gov.ph', 'lgu_staff', 'Quezon City', null],
+            ['Batangas Staff', 'batangas.staff@ewattph.gov.ph', 'lgu_staff', 'Batangas City', null],
+            ['Juan dela Cruz', 'citizen1@example.com', 'citizen', null, null],
+            ['Pedro Ramos', 'citizen2@example.com', 'citizen', null, null],
+            ['Solar Company', 'solarcompany@example.com', 'company', null, null],
         ];
 
         foreach ($users as [$name, $email, $roleName, $lguName, $agencyAbbr]) {
@@ -48,9 +51,9 @@ class DemoSeeder extends Seeder
             return;
         }
 
-        $citizen = User::where('email', 'juan@example.com')->first();
-        $citizen2 = User::where('email', 'pedro@example.com')->first();
-        $staff = User::where('email', 'lgu.staff@quezoncity.gov.ph')->first();
+        $citizen = User::where('email', 'citizen1@example.com')->first();
+        $citizen2 = User::where('email', 'citizen2@example.com')->first();
+        $staff = User::where('email', 'qc.staff@ewattph.gov.ph')->first();
         $doe = Agency::where('abbreviation', 'DOE')->first();
 
         $reports = [
@@ -116,7 +119,7 @@ class DemoSeeder extends Seeder
 
         Announcement::create([
             'agency_id' => $doe->id,
-            'author_id' => User::where('email', 'head@doe.gov.ph')->value('id'),
+            'author_id' => User::where('email', 'doe.secretary@ewattph.gov.ph')->value('id'),
             'title' => 'DOE: Load shedding schedule for Luzon grid',
             'body' => 'The Department of Energy announces rotational interruptions in select areas of Metro Manila and CALABARZON due to thin reserves during peak hours (2PM–6PM). Affected electric cooperatives will publish local schedules.',
             'severity' => 'warning',

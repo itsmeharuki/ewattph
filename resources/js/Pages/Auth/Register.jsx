@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, router } from '@inertiajs/react'
+import { router, Link } from '@inertiajs/react'
 import { AuthShell, Field, inputCls } from './AuthShell'
 
 export default function Register() {
@@ -10,7 +10,7 @@ export default function Register() {
   const submit = (e) => {
     e.preventDefault()
     setProcessing(true)
-    router.post('/register', data, {
+    router.post('/register/send-otp', data, {
       onError: setErrors,
       onFinish: () => setProcessing(false),
     })
@@ -49,7 +49,7 @@ export default function Register() {
         </Field>
         <button type="submit" disabled={processing}
           className="h-12 w-full rounded-lg bg-primary font-medium text-white shadow-md shadow-[#0040E7]/25 transition hover:bg-primary/90 disabled:opacity-60">
-          {processing ? 'Creating account...' : "Sign up — It's free"}
+          {processing ? 'Sending verification code...' : "Continue"}
         </button>
       </form>
     </AuthShell>

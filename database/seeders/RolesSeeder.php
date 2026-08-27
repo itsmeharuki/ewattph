@@ -9,6 +9,7 @@ class RolesSeeder extends Seeder
 {
     protected array $roles = [
         [Role::CITIZEN, 'General public — view live map, report outages, track own reports'],
+        [Role::COMPANY, 'Registered company — apply for business permits'],
         [Role::LGU_STAFF, 'Barangay/City/Municipal employees — verify reports, dispatch teams, process local permits'],
         [Role::LGU_ADMIN, "Mayor's Office / City Administrator — approve dispatches, allocate local resources"],
         [Role::PROVINCIAL_ADMIN, "Governor's Office — coordinate cross-LGU responses"],

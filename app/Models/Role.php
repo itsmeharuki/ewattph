@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Role extends Model
 {
     public const CITIZEN = 'citizen';
+    public const COMPANY = 'company';
     public const LGU_STAFF = 'lgu_staff';
     public const LGU_ADMIN = 'lgu_admin';
     public const PROVINCIAL_ADMIN = 'provincial_admin';
