@@ -32,6 +32,7 @@ class HandleInertiaRequests extends Middleware
                     'email' => $user->email,
                     'role' => $user->role?->name,
                     'isSuperAdmin' => $user->isSuperAdmin(),
+                    'isNationalCouncil' => $user->hasRole('national_council'),
                     'canManageLgu' => $user->canManageLgu(),
                     'canReviewPermits' => $user->canReviewPermits(),
                     'push_enabled' => $user->push_enabled,

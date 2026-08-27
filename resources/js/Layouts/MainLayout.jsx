@@ -54,11 +54,13 @@ function buildNav(user) {
     )
   }
 
-  // National Council — permits tracker
+  // National Council — NEC dashboard only
   if (isGov) {
-    nav.push(
-      { label: 'Permits', href: '/permits/tracker', icon: FileText },
-    )
+    return [
+      { label: 'NEC Dashboard', href: '/nec', icon: LayoutDashboard },
+      { label: 'Monitoring', href: '/monitoring', icon: Radar },
+      { label: 'Live Map', href: '/map', icon: MapPin },
+    ]
   }
 
   return nav
@@ -172,8 +174,8 @@ export default function MainLayout({ children }) {
 
       <Footer />
 
-      {/* Bottom nav (mobile) — hidden for Super Admin */}
-      {user && !user.isSuperAdmin && (
+      {/* Bottom nav (mobile) — role-based */}
+      {user && !user.isSuperAdmin && !user.isNationalCouncil && (
         <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-brandborder bg-white/95 backdrop-blur-md md:hidden" aria-label="Bottom navigation">
           {BOTTOM_NAV.map(({ label, href, icon: Icon }) => (
             <Link key={label} href={href}

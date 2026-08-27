@@ -91,4 +91,11 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureRole::class.':citizen,lgu_
 
             Route::get('/logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs');
         });
+
+        // NEC panel (National Emergency Council only)
+        Route::prefix('nec')->middleware(\App\Http\Middleware\EnsureRole::class.':national_council')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Nec\DashboardController::class, 'index'])->name('nec.dashboard');
+            Route::post('/declare-emergency', [\App\Http\Controllers\Nec\DashboardController::class, 'declareEmergency'])->name('nec.declare-emergency');
+            Route::post('/deactivate-emergency', [\App\Http\Controllers\Nec\DashboardController::class, 'deactivateEmergency'])->name('nec.deactivate-emergency');
+        });
     });

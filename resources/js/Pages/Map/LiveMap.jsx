@@ -6,13 +6,51 @@ import NotificationBell from '../../Components/NotificationBell'
 import MapView from '../../Components/MapView'
 import Footer from '../../Components/Footer'
 
-const NAV = [
-  { label: 'Home', href: '/', icon: Home },
-  { label: 'Monitoring', href: '/monitoring', icon: Radar },
-  { label: 'Live Map', href: '/map', icon: MapPin },
-  { label: 'Reports', href: '/reports', icon: FileText, auth: true },
-  { label: 'Permits', href: '/permits/tracker', icon: FileText },
-]
+// Role-based nav — same logic as MainLayout
+function buildMapNav(user) {
+  const role = typeof user?.role === 'object' ? user?.role?.name : user?.role
+  const isLguStaff = role === 'lgu_staff' || role === 'lgu_admin' || role === 'provincial_admin'
+  const isAgency = role === 'agency_staff' || role === 'agency_head'
+  const isGov = role === 'national_council'
+  const isAdmin = role === 'super_admin'
+  const isCitizen = role === 'citizen' || role === 'company'
+
+  if (isAdmin) {
+    return [
+      { label: 'Admin Dashboard', href: '/admin' },
+      { label: 'Users', href: '/admin/users' },
+      { label: 'Logs', href: '/admin/logs' },
+    ]
+  }
+
+  if (isGov) {
+    return [
+      { label: 'NEC Dashboard', href: '/nec' },
+      { label: 'Monitoring', href: '/monitoring' },
+      { label: 'Live Map', href: '/map' },
+    ]
+  }
+
+  const nav = []
+  nav.push(
+    { label: 'Home', href: '/' },
+    { label: 'Monitoring', href: '/monitoring' },
+    { label: 'Live Map', href: '/map' },
+  )
+  if (isCitizen) {
+    nav.push(
+      { label: 'Reports', href: '/reports' },
+      { label: 'Permits', href: '/permits/tracker' },
+    )
+  }
+  if (isLguStaff) {
+    nav.push({ label: 'LGU Dashboard', href: '/lgu/dashboard' })
+  }
+  if (isAgency) {
+    nav.push({ label: 'Permits', href: '/permits/tracker' })
+  }
+  return nav
+}
 
 LiveMap.layout = (page) => <MapLayout>{page}</MapLayout>
 
@@ -22,13 +60,7 @@ function MapLayout({ children }) {
   const unread = auth?.unreadNotifications ?? 0
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const links = [
-    NAV[0], NAV[1], NAV[2],
-    ...(user ? [NAV[3]] : []),
-    NAV[4],
-    ...(user?.canManageLgu ? [{ label: 'LGU Dashboard', href: '/lgu/dashboard' }] : []),
-    ...(user?.isSuperAdmin ? [{ label: 'Admin', href: '/admin/users' }] : []),
-  ]
+  const links = buildMapNav(user)
 
   const isActive = (href) => window.location.pathname === href || window.location.pathname.startsWith(`${href}/`)
 
