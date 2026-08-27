@@ -1,16 +1,74 @@
 import { useState } from 'react'
 import { Link, usePage, router } from '@inertiajs/react'
-import { Home, MapPin, FileText, User, Menu, X, Zap, Radar } from 'lucide-react'
+import { Home, MapPin, FileText, User, Menu, X, Zap, Radar, LayoutDashboard, Users as UsersIcon, Settings as SettingsIcon, Activity as ActivityIcon } from 'lucide-react'
 import Logo from '../Components/Logo'
 import NotificationBell from '../Components/NotificationBell'
 import Footer from '../Components/Footer'
 
-const NAV = [
+// Role-based navigation — different users see different items
+function buildNav(user) {
+  const role = typeof user?.role === 'object' ? user?.role?.name : user?.role
+  const isLguStaff = role === 'lgu_staff' || role === 'lgu_admin' || role === 'provincial_admin'
+  const isAgency = role === 'agency_staff' || role === 'agency_head'
+  const isGov = role === 'national_council'
+  const isAdmin = role === 'super_admin'
+  const isCitizen = role === 'citizen' || role === 'company'
+
+  // Super Admin — ONLY admin panel routes, nothing else
+  if (isAdmin) {
+    return [
+      { label: 'Admin Dashboard', href: '/admin', icon: LayoutDashboard },
+      { label: 'Users', href: '/admin/users', icon: UsersIcon },
+      { label: 'Logs', href: '/admin/logs', icon: ActivityIcon },
+    ]
+  }
+
+  const nav = []
+
+  // Everyone else (guests + non-admin roles) — public + role-specific
+  nav.push(
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Monitoring', href: '/monitoring', icon: Radar },
+    { label: 'Live Map', href: '/map', icon: MapPin },
+  )
+
+  // Citizens & Companies — Reports + Permits
+  if (isCitizen) {
+    nav.push(
+      { label: 'Reports', href: '/reports', icon: FileText },
+      { label: 'Permits', href: '/permits/tracker', icon: FileText },
+    )
+  }
+
+  // LGU Staff / Admin — LGU Dashboard
+  if (isLguStaff) {
+    nav.push(
+      { label: 'LGU Dashboard', href: '/lgu/dashboard', icon: FileText },
+    )
+  }
+
+  // Agency Staff / Head — Permits tracker
+  if (isAgency) {
+    nav.push(
+      { label: 'Permits', href: '/permits/tracker', icon: FileText },
+    )
+  }
+
+  // National Council — permits tracker
+  if (isGov) {
+    nav.push(
+      { label: 'Permits', href: '/permits/tracker', icon: FileText },
+    )
+  }
+
+  return nav
+}
+
+const BOTTOM_NAV = [
   { label: 'Home', href: '/', icon: Home },
   { label: 'Monitoring', href: '/monitoring', icon: Radar },
   { label: 'Live Map', href: '/map', icon: MapPin },
-  { label: 'Reports', href: '/reports', icon: FileText, auth: true },
-  { label: 'Permits', href: '/permits/tracker', icon: FileText },
+  { label: 'Profile', href: '/profile', icon: User },
 ]
 
 export default function MainLayout({ children }) {
@@ -19,16 +77,7 @@ export default function MainLayout({ children }) {
   const unread = auth?.unreadNotifications ?? 0
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // e.gov.ph nav mapping: Home / Monitoring / Live Map / Reports / Permits (+ role links)
-  const links = [
-    NAV[0],
-    NAV[1],
-    NAV[2],
-    ...(user ? [NAV[3]] : []),
-    NAV[4],
-    ...(user?.canManageLgu ? [{ label: 'LGU Dashboard', href: '/lgu/dashboard' }] : []),
-    ...(user?.isSuperAdmin ? [{ label: 'Admin', href: '/admin/users' }] : []),
-  ]
+  const links = buildNav(user)
 
   const isActive = (href) => window.location.pathname === href || window.location.pathname.startsWith(`${href}/`)
 
@@ -123,10 +172,10 @@ export default function MainLayout({ children }) {
 
       <Footer />
 
-      {/* Bottom nav (mobile) */}
-      {user && (
+      {/* Bottom nav (mobile) — hidden for Super Admin */}
+      {user && !user.isSuperAdmin && (
         <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-brandborder bg-white/95 backdrop-blur-md md:hidden" aria-label="Bottom navigation">
-          {[NAV[0], NAV[1], NAV[2], { label: 'Profile', href: '/profile', icon: User }].filter((l) => !l.auth || user).map(({ label, href, icon: Icon }) => (
+          {BOTTOM_NAV.map(({ label, href, icon: Icon }) => (
             <Link key={label} href={href}
               className={`flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium transition ${
                 isActive(href) ? 'text-primary' : 'text-textmuted'}`}>

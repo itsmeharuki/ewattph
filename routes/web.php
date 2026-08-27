@@ -57,7 +57,7 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureRole::class.':citizen,lgu_
         Route::post('/permits', [PermitController::class, 'store'])->name('permits.store');
         Route::get('/permits/{permit}', [PermitController::class, 'show'])->name('permits.show');
         Route::post('/permits/{permit}/review', [PermitController::class, 'review'])
-            ->middleware(\App\Http\Middleware\EnsureRole::class.':lgu_staff,lgu_admin,provincial_admin,agency_staff,agency_head,super_admin')
+            ->middleware(\App\Http\Middleware\EnsureRole::class.':lgu_staff,lgu_admin,provincial_admin,agency_staff,agency_head')
             ->name('permits.review');
 
         // Notifications
@@ -74,17 +74,21 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureRole::class.':citizen,lgu_
 
         // LGU dashboard
         Route::get('/lgu/dashboard', [LguDashboardController::class, 'index'])
-            ->middleware(\App\Http\Middleware\EnsureRole::class.':lgu_staff,lgu_admin,provincial_admin,super_admin')
+            ->middleware(\App\Http\Middleware\EnsureRole::class.':lgu_staff,lgu_admin,provincial_admin')
             ->name('lgu.dashboard');
         Route::post('/lgu/reports/{report}/verify', [LguDashboardController::class, 'verify'])->name('lgu.reports.verify');
         Route::post('/lgu/reports/{report}/dispatch', [LguDashboardController::class, 'dispatch'])->name('lgu.reports.dispatch');
         Route::post('/lgu/reports/{report}/resolve', [LguDashboardController::class, 'resolve'])->name('lgu.reports.resolve');
 
-        // Admin panel
-        Route::get('/admin/users', [UserController::class, 'index'])
-            ->middleware(\App\Http\Middleware\EnsureRole::class.':super_admin')
-            ->name('admin.users');
-        Route::patch('/admin/users/{user}', [UserController::class, 'update'])
-            ->middleware(\App\Http\Middleware\EnsureRole::class.':super_admin')
-            ->name('admin.users.update');
+        // Admin panel (Super Admin only — system administration)
+        Route::prefix('admin')->middleware(\App\Http\Middleware\EnsureRole::class.':super_admin')->group(function () {
+            Route::get('/', fn () => inertia('Admin/Dashboard'))->name('admin.dashboard');
+            Route::get('/users', [UserController::class, 'index'])->name('admin.users');
+            Route::patch('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+            Route::patch('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('admin.users.reset-password');
+            Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('admin.users.deactivate');
+            Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('admin.users.reactivate');
+
+            Route::get('/logs', [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('admin.logs');
+        });
     });

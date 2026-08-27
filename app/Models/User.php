@@ -89,12 +89,12 @@ class User extends Authenticatable
 
     public function canManageLgu(): bool
     {
-        return $this->hasRole(Role::LGU_STAFF, Role::LGU_ADMIN, Role::PROVINCIAL_ADMIN, Role::SUPER_ADMIN) && (bool) $this->lgu_id;
+        return $this->hasRole(Role::LGU_STAFF, Role::LGU_ADMIN, Role::PROVINCIAL_ADMIN) && (bool) $this->lgu_id;
     }
 
     public function canReviewPermits(): bool
     {
-        return $this->hasRole(Role::AGENCY_STAFF, Role::AGENCY_HEAD, Role::LGU_STAFF, Role::LGU_ADMIN, Role::PROVINCIAL_ADMIN, Role::SUPER_ADMIN);
+        return $this->hasRole(Role::AGENCY_STAFF, Role::AGENCY_HEAD, Role::LGU_STAFF, Role::LGU_ADMIN, Role::PROVINCIAL_ADMIN);
     }
 
     public function unreadNotificationsCount(): int
