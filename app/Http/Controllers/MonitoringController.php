@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AiAnalysis;
 use App\Models\Announcement;
+use App\Models\AutoDetectedOutage;
 use App\Models\Lgu;
 use App\Models\OutageReport;
 use Illuminate\Http\Request;
@@ -65,10 +66,33 @@ class MonitoringController extends Controller
             )->values())
             ->values()->all();
 
+        // Auto-detected outages from social media (last 24h)
+        $autoDetected = AutoDetectedOutage::query()
+            ->where('status', '!=', 'dismissed')
+            ->where('confidence_score', '>=', 50)
+            ->where('detected_at', '>=', now()->subDays(2))
+            ->when($lgu, fn ($q) => $q->where('detected_province', $lgu->province))
+            ->latest('detected_at')
+            ->take(10)
+            ->get()
+            ->map(fn ($d) => [
+                'id' => $d->id,
+                'source' => $d->source,
+                'source_label' => AutoDetectedOutage::sourceLabel($d->source),
+                'source_url' => $d->source_url,
+                'province' => $d->detected_province,
+                'summary' => $d->summary,
+                'raw_text' => $d->raw_text,
+                'confidence' => $d->confidence_score,
+                'outage_type' => $d->outage_type,
+                'detected_at' => $d->detected_at->diffForHumans(),
+            ]);
+
         return inertia('Monitoring/Index', [
             'metrics' => $metrics,
             'announcements' => $announcements,
             'riskZones' => $riskZones,
+            'autoDetected' => $autoDetected,
             'selectedLgu' => $lgu ? $lgu->only(['id', 'name', 'province', 'region']) : null,
         ]);
     }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, usePage, router } from '@inertiajs/react'
-import { Home, MapPin, FileText, User, Menu, X, Zap, Radar, RefreshCw, CheckCircle2, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react'
+import { Home, MapPin, FileText, User, Menu, X, Zap, Radar, RefreshCw, CheckCircle2, AlertTriangle, ChevronUp, ChevronDown, Eye } from 'lucide-react'
 import Logo from '../../Components/Logo'
 import NotificationBell from '../../Components/NotificationBell'
 import MapView from '../../Components/MapView'
@@ -111,6 +111,7 @@ export default function LiveMap() {
               <LegendItem color="#CE1126" label="Verified" desc="Brownout na kumpirma ng LGU" />
               <LegendItem color="#F59E0B" label="Pending" desc="Bagong report, hinihintay pa ang verification" />
               <LegendItem color="#10B981" label="Resolved" desc="Bumalik na ang kuryente sa lugar" />
+              <LegendItem color="#3B82F6" label="Auto-Detected" desc="Nakita sa social media / web" pulse />
               <LegendItem color="#FCD116" label="Risk Zone" desc="Predicted brownout sa susunod na 48 oras" ring />
             </ul>
             <p className="mt-2 pt-2 border-t border-gray-100 text-[9px] text-textmuted leading-relaxed">
@@ -125,6 +126,9 @@ export default function LiveMap() {
             <Stat icon={<Zap className="h-4 w-4 text-red-600" />} value={active} label="Active" color="#CE1126" />
             <Stat icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />} value={resolved} label="Resolved" color="#10B981" />
             <Stat icon={<AlertTriangle className="h-4 w-4 text-amber-600" />} value={data.risk_zones.length} label="Risk" color="#F59E0B" />
+            {data.auto_detected_count > 0 && (
+              <Stat icon={<Eye className="h-4 w-4 text-blue-600" />} value={data.auto_detected_count} label="Auto" color="#3B82F6" />
+            )}
           </div>
           <button onClick={load}
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-xl transition hover:bg-gray-50"
@@ -180,11 +184,16 @@ export default function LiveMap() {
   )
 }
 
-function LegendItem({ color, label, desc, ring = false }) {
+function LegendItem({ color, label, desc, ring = false, pulse = false }) {
   return (
     <li className="flex items-center gap-2.5">
       {ring ? (
         <span className="inline-flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-full border-[2px]" style={{ borderColor: color }}><span className="h-[4px] w-[4px] rounded-full bg-current" style={{ color: color }} /></span>
+      ) : pulse ? (
+        <span className="relative inline-flex h-[14px] w-[14px] shrink-0 items-center justify-center">
+          <span className="absolute inline-flex h-full w-full rounded-full opacity-40" style={{ background: color, animation: 'pulse-ring 2s infinite' }} />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full" style={{ background: color }} />
+        </span>
       ) : (
         <span className="inline-block h-3 w-3 shrink-0 rounded-full" style={{ background: color }} />
       )}

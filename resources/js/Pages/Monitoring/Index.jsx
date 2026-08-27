@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Link, router } from '@inertiajs/react'
-import { Zap, MapPin, ShieldCheck, AlertTriangle, Megaphone, Clock, ExternalLink } from 'lucide-react'
+import { Zap, MapPin, ShieldCheck, AlertTriangle, Megaphone, Clock, ExternalLink, Eye, Radio } from 'lucide-react'
 import Reveal from '../../Components/Reveal'
 import LocationPicker from '../../Components/LocationPicker'
 
@@ -10,14 +10,16 @@ import LocationPicker from '../../Components/LocationPicker'
  */
 const PER_PAGE = 3
 
-export default function MonitoringIndex({ metrics = {}, announcements = [], riskZones = [], selectedLgu = null }) {
+export default function MonitoringIndex({ metrics = {}, announcements = [], riskZones = [], autoDetected = [], selectedLgu = null }) {
   const [tab, setTab] = useState('all')
   const [advisoryPage, setAdvisoryPage] = useState(0)
+  const [autoPage, setAutoPage] = useState(0)
   const [expanded, setExpanded] = useState({})
 
   const show = (key) => tab === 'all' || tab === key
 
   const advisoryTotal = Math.ceil(announcements.length / PER_PAGE)
+  const autoTotal = Math.ceil(autoDetected.length / PER_PAGE)
   const pagedAdvisories = announcements.slice(advisoryPage * PER_PAGE, advisoryPage * PER_PAGE + PER_PAGE)
 
   const tabs = [
@@ -107,6 +109,33 @@ export default function MonitoringIndex({ metrics = {}, announcements = [], risk
                 </div>
               ) : (
                 <RiskCarousel zones={riskZones} />
+              )}
+            </div>
+          </Reveal>
+        )}
+
+        {/* ═══ GRID INCIDENT FEED ════════════════════════════════ */}
+        {show('advisories') && autoDetected.length > 0 && (
+          <Reveal>
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+                <Eye className="h-4 w-4 text-blue-500" />
+                <h2 className="text-sm font-semibold text-textprimary leading-relaxed">Grid Incident Feed</h2>
+                <span className="ml-auto text-[10px] text-slate-400 font-medium">{autoDetected.length} reports</span>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {autoDetected.slice(autoPage * PER_PAGE, autoPage * PER_PAGE + PER_PAGE).map((d) => (
+                  <AutoDetectedItem key={d.id} item={d} />
+                ))}
+              </div>
+              {autoTotal > 1 && (
+                <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
+                  <button onClick={() => setAutoPage(Math.max(0, autoPage - 1))} disabled={autoPage === 0}
+                    className="text-xs font-medium text-primary disabled:text-slate-300">← Previous</button>
+                  <span className="text-[11px] text-slate-400">{autoPage + 1} / {autoTotal}</span>
+                  <button onClick={() => setAutoPage(Math.min(autoTotal - 1, autoPage + 1))} disabled={autoPage >= autoTotal - 1}
+                    className="text-xs font-medium text-primary disabled:text-slate-300">Next →</button>
+                </div>
               )}
             </div>
           </Reveal>
@@ -245,6 +274,83 @@ function RiskCarousel({ zones }) {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function AutoDetectedItem({ item }) {
+  const [open, setOpen] = useState(false)
+  const d = item
+  const hasLongText = (d.summary && d.summary.length > 60) || (d.raw_text && d.raw_text.length > 60)
+
+  // Extract domain name from URL for display
+  const sourceDomain = d.source_url ? (() => {
+    try {
+      const hostname = new URL(d.source_url).hostname.replace('www.', '')
+      return hostname.charAt(0).toUpperCase() + hostname.slice(1)
+    } catch { return d.source_label }
+  })() : null
+
+  const sourceBg = {
+    'Facebook': 'bg-indigo-50 text-indigo-600',
+    'X (Twitter)': 'bg-sky-50 text-sky-600',
+    'Instagram': 'bg-pink-50 text-pink-600',
+    'News Media': 'bg-emerald-50 text-emerald-600',
+    'Web Search': 'bg-violet-50 text-violet-600',
+    'DOE Philippines': 'bg-red-50 text-red-600',
+    'NGCP': 'bg-orange-50 text-orange-600',
+    'NGCP (X)': 'bg-orange-50 text-orange-600',
+    'Meralco': 'bg-yellow-50 text-yellow-700',
+    'PNA': 'bg-blue-50 text-blue-600',
+    'DOST-PAGASA': 'bg-cyan-50 text-cyan-600',
+  }
+
+  return (
+    <div className="px-5 py-4">
+      <div className="flex items-start gap-3">
+        <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded text-[10px] font-bold ${sourceBg[d.source_label] || 'bg-blue-50 text-blue-600'}`}>
+          {d.source_label?.slice(0, 2) || 'AI'}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold text-textprimary">{d.province}</span>
+            <span className="rounded-full bg-blue-100 text-blue-700 px-1.5 py-0.5 text-[9px] font-bold uppercase">
+              {d.confidence}% conf
+            </span>
+            {d.outage_type && (
+              <span className="rounded-full bg-slate-100 text-slate-600 px-1.5 py-0.5 text-[9px] font-medium uppercase">
+                {d.outage_type}
+              </span>
+            )}
+          </div>
+          <p className={`text-xs text-textmuted mt-1.5 leading-relaxed ${!open ? 'line-clamp-2' : ''}`}>{d.summary}</p>
+          {open && d.raw_text && d.raw_text !== d.summary && (
+            <div className="mt-2 rounded-lg bg-slate-50 border border-slate-100 p-2.5">
+              <p className="text-[11px] text-slate-500 leading-relaxed">{d.raw_text}</p>
+            </div>
+          )}
+          {hasLongText && (
+            <button onClick={() => setOpen(!open)} className="mt-1.5 text-[11px] font-medium text-primary hover:underline">
+              {open ? 'Isara' : 'Basahin pa →'}
+            </button>
+          )}
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <div className="flex items-center gap-1 text-[10px] text-slate-400">
+              <Clock className="h-3 w-3" /> {d.detected_at}
+            </div>
+            {d.source_url ? (
+              <a href={d.source_url} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-md bg-blue-50 border border-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-600 transition hover:bg-blue-100">
+                <ExternalLink className="h-3 w-3" /> {sourceDomain || d.source_label}
+              </a>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 border border-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-500">
+                <Radio className="h-3 w-3" /> {d.source_label}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

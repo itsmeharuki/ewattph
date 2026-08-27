@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('ai:analyze-risk')->dailyAt('06:00')->withoutOverlapping();
+Schedule::command('ewatt:detect-outages')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('model:prune')->daily();
 
 Artisan::command('inspire', function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AiAnalysis;
 use App\Models\Announcement;
+use App\Models\AutoDetectedOutage;
 use App\Models\OutageReport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
@@ -29,18 +30,49 @@ class PublicController extends Controller
                 return [...$z, 'lat' => $lgu?->latitude, 'lng' => $lgu?->longitude];
             })->filter(fn ($z) => $z['lat'] && $z['lng'])->values()->all();
 
+            // Auto-detected outages from social media (last 24h, confirmed or high confidence)
+            $autoDetected = AutoDetectedOutage::query()
+                ->where('status', '!=', 'dismissed')
+                ->where('confidence_score', '>=', 50)
+                ->where('detected_at', '>=', now()->subDays(2))
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get([
+                    'id', 'source', 'detected_province', 'latitude', 'longitude',
+                    'confidence_score', 'outage_type', 'summary', 'status', 'detected_at',
+                ])
+                ->map(fn ($d) => [
+                    'id' => 'auto-' . $d->id,
+                    'lat' => (float) $d->latitude,
+                    'lng' => (float) $d->longitude,
+                    'status' => $d->status === 'confirmed' ? 'verified' : 'pending',
+                    'outage_type' => $d->outage_type ?? 'brownout',
+                    'severity' => $d->confidence_score,
+                    'lgu' => $d->detected_province,
+                    'source' => $d->source,
+                    'source_label' => AutoDetectedOutage::sourceLabel($d->source),
+                    'summary' => $d->summary,
+                    'is_auto_detected' => true,
+                    'reported_at' => $d->detected_at->toIso8601String(),
+                ])
+                ->toArray();
+
             return [
-                'reports' => $reports->map(fn ($r) => [
-                    'id' => $r->id,
-                    'lat' => (float) $r->latitude,
-                    'lng' => (float) $r->longitude,
-                    'status' => $r->status,
-                    'outage_type' => $r->outage_type,
-                    'severity' => $r->ai_severity_score,
-                    'lgu' => $r->lgu?->name,
-                    'reported_at' => $r->created_at->toIso8601String(),
-                ])->toArray(),
+                'reports' => array_merge(
+                    $reports->map(fn ($r) => [
+                        'id' => $r->id,
+                        'lat' => (float) $r->latitude,
+                        'lng' => (float) $r->longitude,
+                        'status' => $r->status,
+                        'outage_type' => $r->outage_type,
+                        'severity' => $r->ai_severity_score,
+                        'lgu' => $r->lgu?->name,
+                        'reported_at' => $r->created_at->toIso8601String(),
+                    ])->toArray(),
+                    $autoDetected,
+                ),
                 'risk_zones' => $riskZones,
+                'auto_detected_count' => count($autoDetected),
             ];
         });
 
