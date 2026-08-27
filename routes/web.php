@@ -98,4 +98,12 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureRole::class.':citizen,lgu_
             Route::post('/declare-emergency', [\App\Http\Controllers\Nec\DashboardController::class, 'declareEmergency'])->name('nec.declare-emergency');
             Route::post('/deactivate-emergency', [\App\Http\Controllers\Nec\DashboardController::class, 'deactivateEmergency'])->name('nec.deactivate-emergency');
         });
+
+        // DOE panel (Department of Energy — agency_staff + agency_head)
+        Route::prefix('doe')->middleware(\App\Http\Middleware\EnsureRole::class.':agency_staff,agency_head')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Doe\DashboardController::class, 'index'])->name('doe.dashboard');
+            Route::post('/permits/{permit}/approve', [\App\Http\Controllers\Doe\DashboardController::class, 'approvePermit'])->name('doe.permits.approve');
+            Route::post('/permits/{permit}/reject', [\App\Http\Controllers\Doe\DashboardController::class, 'rejectPermit'])->name('doe.permits.reject');
+            Route::post('/advisories', [\App\Http\Controllers\Doe\DashboardController::class, 'storeAdvisory'])->name('doe.advisories.store');
+        });
     });

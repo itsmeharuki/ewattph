@@ -47,11 +47,13 @@ function buildNav(user) {
     )
   }
 
-  // Agency Staff / Head — Permits tracker
+  // Agency Staff / Head — DOE dashboard
   if (isAgency) {
-    nav.push(
-      { label: 'Permits', href: '/permits/tracker', icon: FileText },
-    )
+    return [
+      { label: 'DOE Dashboard', href: '/doe', icon: LayoutDashboard },
+      { label: 'Monitoring', href: '/monitoring', icon: Radar },
+      { label: 'Live Map', href: '/map', icon: MapPin },
+    ]
   }
 
   // National Council — NEC dashboard only
