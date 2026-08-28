@@ -11,27 +11,27 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-textprimary">System Administration</h1>
-        <p className="mt-1 text-sm text-textmuted">Manage users, system settings, and monitor platform health.</p>
+        <h1 className="text-lg font-bold text-textprimary md:text-2xl">System Administration</h1>
+        <p className="mt-1 text-xs text-textmuted md:text-sm">Manage users, system settings, and monitor platform health.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
         {sections.map(({ label, desc, href, icon: Icon, color }) => (
           <Link key={href} href={href}
-            className="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-primary/30">
-            <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
+            className="group rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md hover:border-primary/30 sm:p-6">
+            <div className={`mb-2 inline-flex h-9 w-9 items-center justify-center rounded-lg sm:mb-3 sm:h-10 sm:w-10 ${color}`}>
               <Icon className="h-5 w-5" />
             </div>
-            <h2 className="text-base font-semibold text-textprimary group-hover:text-primary">{label}</h2>
-            <p className="mt-1 text-sm text-textmuted">{desc}</p>
+            <h2 className="text-sm font-semibold text-textprimary group-hover:text-primary md:text-base">{label}</h2>
+            <p className="mt-1 text-xs text-textmuted md:text-sm">{desc}</p>
           </Link>
         ))}
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-textmuted">Logged in as</h2>
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-textmuted">Logged in as</h2>
         <p className="mt-1 text-sm text-textprimary">{user?.name} &middot; {user?.email}</p>
         <p className="mt-0.5 text-xs text-textmuted">Super Admin &middot; System-wide access</p>
       </div>

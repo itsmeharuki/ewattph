@@ -33,7 +33,7 @@ export default function LocationPicker({
   useEffect(() => {
     clearTimeout(debounceRef.current)
 
-    if (!query || query.trim().length < 2) {
+    if (!query || query.trim().length < 1) {
       setResults([])
       setLoading(false)
       return
@@ -46,7 +46,7 @@ export default function LocationPicker({
       abortRef.current = controller
 
       try {
-        const res = await fetch(`/api/public/places?q=${encodeURIComponent(query)}&limit=15`, { signal: controller.signal })
+        const res = await fetch(`/api/public/places?q=${encodeURIComponent(query.trim())}&limit=15`, { signal: controller.signal })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = await res.json()
         if (!controller.signal.aborted) setResults(Array.isArray(data) ? data : [])

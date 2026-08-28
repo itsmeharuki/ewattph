@@ -59,15 +59,15 @@ export default function Create({ lgus, selectedLgu = null }) {
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-2xl font-bold">Report Outage</h1>
-      <p className="text-sm text-textmuted">Your report helps build a live map of the grid. AI will analyze severity instantly.</p>
+      <h1 className="text-lg font-bold md:text-2xl">Report Outage</h1>
+      <p className="text-xs text-textmuted md:text-sm">Your report helps build a live map of the grid. AI will analyze severity instantly.</p>
 
-      <form onSubmit={submit} className="space-y-4 rounded-2xl border border-brandborder bg-card p-4 shadow-sm">
+      <form onSubmit={submit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:rounded-2xl">
         {/* Location */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-textmuted">Location</label>
+          <label className="mb-1 block text-xs font-medium text-textmuted sm:text-sm">Location</label>
           <button type="button" onClick={detectLocation}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-secondary text-sm font-semibold text-secondary hover:bg-secondary/5">
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-secondary text-xs font-semibold text-secondary hover:bg-secondary/5 sm:h-12 sm:text-sm">
             <Crosshair className={`h-4 w-4 ${locating ? 'animate-spin' : ''}`} />
             {locating ? 'Detecting GPS…' : data.latitude ? `Pinned: ${data.latitude}, ${data.longitude}` : 'Use my current location'}
           </button>
@@ -77,17 +77,17 @@ export default function Create({ lgus, selectedLgu = null }) {
           <div>
             <input type="number" step="any" placeholder="Latitude" value={data.latitude} required
               onChange={(e) => setData({ ...data, latitude: e.target.value })}
-              className="h-12 w-full rounded-lg border border-gray-300 px-3 text-sm" aria-label="Latitude" />
+              className="h-11 w-full rounded-lg border border-gray-300 px-3 text-sm sm:h-12" aria-label="Latitude" />
           </div>
           <div>
             <input type="number" step="any" placeholder="Longitude" value={data.longitude} required
               onChange={(e) => setData({ ...data, longitude: e.target.value })}
-              className="h-12 w-full rounded-lg border border-gray-300 px-3 text-sm" aria-label="Longitude" />
+              className="h-11 w-full rounded-lg border border-gray-300 px-3 text-sm sm:h-12" aria-label="Longitude" />
           </div>
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-textmuted">City / Municipality</label>
+          <label className="mb-1 block text-xs font-medium text-textmuted sm:text-sm">City / Municipality</label>
           <LocationPicker
             value={selectedLgu || lgus.find(l => String(l.id) === String(data.lgu_id)) || null}
             onChange={(lgu) => setData({ ...data, lgu_id: lgu ? String(lgu.id) : '' })}
@@ -99,10 +99,10 @@ export default function Create({ lgus, selectedLgu = null }) {
 
         {/* Outage type */}
         <div>
-          <label htmlFor="type" className="mb-1 block text-sm font-medium text-textmuted">Outage type</label>
+          <label htmlFor="type" className="mb-1 block text-xs font-medium text-textmuted sm:text-sm">Outage type</label>
           <select id="type" value={data.outage_type}
             onChange={(e) => setData({ ...data, outage_type: e.target.value })}
-            className="h-12 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm capitalize">
+            className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm capitalize sm:h-12">
             {['transformer', 'distribution_line', 'transmission_line', 'brownout', 'rotational_blackout', 'other'].map((t) => (
               <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
             ))}
@@ -111,7 +111,7 @@ export default function Create({ lgus, selectedLgu = null }) {
 
         {/* Description */}
         <div>
-          <label htmlFor="desc" className="mb-1 block text-sm font-medium text-textmuted">Description (optional)</label>
+          <label htmlFor="desc" className="mb-1 block text-xs font-medium text-textmuted sm:text-sm">Description (optional)</label>
           <textarea id="desc" rows={3} maxLength={2000} value={data.description}
             onChange={(e) => setData({ ...data, description: e.target.value })}
             className="w-full rounded-lg border border-gray-300 p-3 text-sm" placeholder="What are you seeing?" />
@@ -120,14 +120,14 @@ export default function Create({ lgus, selectedLgu = null }) {
 
         {/* Photo */}
         <div>
-          <label htmlFor="photo" className="mb-1 block text-sm font-medium text-textmuted">Photo (optional)</label>
+          <label htmlFor="photo" className="mb-1 block text-xs font-medium text-textmuted sm:text-sm">Photo (optional)</label>
           <input id="photo" type="file" accept="image/*"
             onChange={(e) => setData({ ...data, photo: e.target.files[0] })}
-            className="block w-full text-sm text-textmuted file:h-10 file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:text-sm file:font-semibold file:text-white" />
+            className="block w-full text-xs text-textmuted file:h-9 file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:text-sm file:font-semibold file:text-white sm:text-sm" />
         </div>
 
         <button type="submit" disabled={processing}
-          className="h-12 w-full rounded-lg bg-primary font-semibold text-white hover:bg-primary-dark disabled:opacity-60">
+          className="h-11 w-full rounded-lg bg-primary font-semibold text-white hover:bg-primary-dark disabled:opacity-60 sm:h-12">
           {processing ? 'Submitting & analyzing…' : 'Submit Report'}
         </button>
       </form>

@@ -124,7 +124,7 @@ export default function MainLayout({ children }) {
                   Log in
                 </Link>
                 <Link href="/register"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-[#0040E7]/20 transition hover:bg-primary/90 hover:shadow-lg">
+                  className="hidden h-10 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-[#0040E7]/20 transition hover:bg-primary/90 hover:shadow-lg md:inline-flex">
                   <Zap className="h-4 w-4" /> Get Started
                 </Link>
               </>
@@ -151,7 +151,10 @@ export default function MainLayout({ children }) {
                 <button onClick={() => router.post('/logout')} className="block w-full rounded-lg px-3 py-3 text-left text-[15px] font-medium text-danger hover:bg-muted">Log out</button>
               </>
             ) : (
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="block rounded-lg px-3 py-3 text-[15px] font-medium text-primary hover:bg-muted">Log in</Link>
+              <>
+                <Link href="/login" onClick={() => setMenuOpen(false)} className="block rounded-lg px-3 py-3 text-[15px] font-medium text-primary hover:bg-muted">Log in</Link>
+                <Link href="/register" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-3 text-[15px] font-medium text-white hover:bg-primary/90"><Zap className="h-4 w-4" /> Get Started</Link>
+              </>
             )}
           </nav>
         )}

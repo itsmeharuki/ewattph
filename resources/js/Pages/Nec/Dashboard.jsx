@@ -38,86 +38,86 @@ export default function NecDashboard({ metrics, announcements, riskZones, autoDe
     return 'bg-gray-100 text-gray-600'
   }
 
-  // Client-side pagination slices
   const incidentData = autoDetected?.data ?? autoDetected ?? []
   const incidentTotal = autoDetected?.last_page ?? 1
   const advisoryData = announcements?.data ?? announcements ?? []
   const advisoryTotal = announcements?.last_page ?? 1
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-start justify-between">
+    <div className="space-y-4 md:space-y-5">
+      {/* Header — stacks on mobile */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-textprimary">National Emergency Council</h1>
-          <p className="mt-0.5 text-sm text-textmuted">Real-time national energy situational awareness</p>
+          <h1 className="text-lg font-bold text-textprimary md:text-xl">National Emergency Council</h1>
+          <p className="mt-0.5 text-xs text-textmuted md:text-sm">Real-time national energy situational awareness</p>
         </div>
-        <div>
+        <div className="shrink-0">
           {emergencyActive ? (
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-700 sm:px-3 sm:text-sm">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
                 Emergency Active
               </span>
               <button onClick={deactivateEmergency}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-textmuted transition hover:bg-gray-50">
+                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-textmuted transition hover:bg-gray-50 sm:text-sm">
                 Deactivate
               </button>
             </div>
           ) : (
             <button onClick={() => setShowDeclareModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">
+              className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-red-700 sm:px-4 sm:text-sm">
               <AlertTriangle className="h-4 w-4" /> Declare Emergency
             </button>
           )}
         </div>
       </div>
 
-      {/* National Overview — stat cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* Stat cards — 2 col mobile, 4 col desktop */}
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
         {[
           { label: 'Power Reliability', value: `${metrics.power_reliability}%`, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Active Incidents', value: metrics.active_outages, color: 'text-red-600', bg: 'bg-red-50', sub: `${metrics.citizen_reports} reported · ${metrics.auto_detected} scraped` },
+          { label: 'Active Incidents', value: metrics.active_outages, color: 'text-red-600', bg: 'bg-red-50', sub: `${metrics.citizen_reports}r · ${metrics.auto_detected}s` },
           { label: 'Resolved Today', value: metrics.resolved_today, color: 'text-blue-600', bg: 'bg-blue-50' },
           { label: 'Reports (24h)', value: metrics.reports_24h, color: 'text-amber-600', bg: 'bg-amber-50' },
         ].map(({ label, value, color, bg, sub }) => (
-          <div key={label} className="rounded-xl border border-gray-200 bg-white p-4">
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${bg}`}>
-                <Radar className={`h-3.5 w-3.5 ${color}`} />
+          <div key={label} className="rounded-xl border border-gray-200 bg-white p-3 sm:p-4">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className={`inline-flex h-6 w-6 items-center justify-center rounded-lg sm:h-7 sm:w-7 ${bg}`}>
+                <Radar className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${color}`} />
               </span>
-              <span className="text-xs font-medium uppercase tracking-wide text-textmuted">{label}</span>
+              <span className="text-[10px] font-medium uppercase tracking-wide text-textmuted sm:text-xs">{label}</span>
             </div>
-            <div className={`mt-2 text-2xl font-bold tabular-nums ${color}`}>{value}</div>
-            {sub && <div className="mt-0.5 text-xs text-textmuted">{sub}</div>}
+            <div className={`mt-1.5 text-xl font-bold tabular-nums sm:mt-2 sm:text-2xl ${color}`}>{value}</div>
+            {sub && <div className="mt-0.5 text-[10px] text-textmuted sm:text-xs">{sub}</div>}
           </div>
         ))}
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
-        {/* Left — 2 cols */}
-        <div className="lg:col-span-2 space-y-5">
+      {/* Content grid — single column on mobile, 3-col on desktop */}
+      <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
+        {/* Left — main content */}
+        <div className="space-y-4 md:col-span-2 md:space-y-5">
           {/* Risk Assessment */}
           <div className="rounded-xl border border-gray-200 bg-white">
-            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:px-5 sm:py-3.5">
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-amber-500" />
-                <h2 className="text-sm font-semibold text-textprimary">National Risk Assessment</h2>
+                <h2 className="text-xs font-semibold text-textprimary sm:text-sm">National Risk Assessment</h2>
               </div>
-              <span className="text-xs text-textmuted">{riskZones.length} zones</span>
+              <span className="text-[10px] text-textmuted sm:text-xs">{riskZones.length} zones</span>
             </div>
-            <div className="p-5">
+            <div className="p-4 sm:p-5">
               {riskZones.length === 0 ? (
                 <p className="py-6 text-center text-sm text-textmuted">No risk data available.</p>
               ) : (
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   {riskZones.map((z, i) => (
-                    <div key={i} className="flex items-center justify-between rounded-lg px-3 py-2.5 transition hover:bg-gray-50">
-                      <div>
-                        <span className="text-sm font-medium text-textprimary">{z.province || z.region || 'Unknown'}</span>
-                        <span className="ml-2 text-xs text-textmuted">{z.predicted_cause || z.cause || ''}</span>
+                    <div key={i} className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 transition hover:bg-gray-50 sm:px-3 sm:py-2.5">
+                      <div className="min-w-0">
+                        <span className="text-xs font-medium text-textprimary sm:text-sm">{z.province || z.region || 'Unknown'}</span>
+                        <span className="ml-1.5 text-[10px] text-textmuted sm:text-xs">{z.predicted_cause || z.cause || ''}</span>
                       </div>
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${riskColor(z.risk_level || z.level)}`}>
+                      <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium sm:px-2.5 sm:text-xs ${riskColor(z.risk_level || z.level)}`}>
                         {(z.risk_level || z.level || 'unknown').toUpperCase()}
                       </span>
                     </div>
@@ -129,28 +129,28 @@ export default function NecDashboard({ metrics, announcements, riskZones, autoDe
 
           {/* Grid Incident Feed — paginated */}
           <div className="rounded-xl border border-gray-200 bg-white">
-            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:px-5 sm:py-3.5">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-blue-500" />
-                <h2 className="text-sm font-semibold text-textprimary">Grid Incident Feed</h2>
+                <h2 className="text-xs font-semibold text-textprimary sm:text-sm">Grid Incident Feed</h2>
               </div>
-              <span className="text-xs text-textmuted">{autoDetected?.total ?? incidentData.length} total</span>
+              <span className="text-[10px] text-textmuted sm:text-xs">{autoDetected?.total ?? incidentData.length} total</span>
             </div>
-            <div className="p-5">
+            <div className="p-4 sm:p-5">
               {incidentData.length === 0 ? (
                 <p className="py-6 text-center text-sm text-textmuted">No incidents detected.</p>
               ) : (
                 <>
                   <div className="space-y-2">
                     {incidentData.map((d) => (
-                      <div key={d.id} className="rounded-lg border border-gray-100 px-4 py-3 transition hover:bg-gray-50">
+                      <div key={d.id} className="rounded-lg border border-gray-100 px-3 py-2.5 transition hover:bg-gray-50 sm:px-4 sm:py-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-textprimary">{d.province}</span>
-                          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">{d.confidence}%</span>
-                          {d.outage_type && <span className="text-xs text-textmuted">{d.outage_type}</span>}
+                          <span className="text-xs font-medium text-textprimary sm:text-sm">{d.province}</span>
+                          <span className="rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 sm:px-2 sm:text-xs">{d.confidence}%</span>
+                          {d.outage_type && <span className="text-[10px] text-textmuted sm:text-xs">{d.outage_type}</span>}
                         </div>
-                        <p className="mt-1 text-sm text-textmuted line-clamp-1">{d.summary}</p>
-                        <div className="mt-1.5 flex items-center gap-2 text-xs text-textmuted">
+                        <p className="mt-1 text-xs text-textmuted line-clamp-1 sm:text-sm">{d.summary}</p>
+                        <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-textmuted sm:text-xs">
                           <span>{d.source_label}</span>
                           <span>&middot;</span>
                           <span>{d.detected_at}</span>
@@ -167,18 +167,18 @@ export default function NecDashboard({ metrics, announcements, riskZones, autoDe
           </div>
         </div>
 
-        {/* Right column */}
-        <div className="space-y-5">
+        {/* Right column — single column on mobile */}
+        <div className="space-y-4 md:space-y-5">
           {/* Advisories — paginated */}
           <div className="rounded-xl border border-gray-200 bg-white">
-            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:px-5 sm:py-3.5">
               <div className="flex items-center gap-2">
                 <Megaphone className="h-4 w-4 text-purple-500" />
-                <h2 className="text-sm font-semibold text-textprimary">Advisories</h2>
+                <h2 className="text-xs font-semibold text-textprimary sm:text-sm">Advisories</h2>
               </div>
-              <span className="text-xs text-textmuted">{announcements?.total ?? advisoryData.length} total</span>
+              <span className="text-[10px] text-textmuted sm:text-xs">{announcements?.total ?? advisoryData.length} total</span>
             </div>
-            <div className="p-5">
+            <div className="p-4 sm:p-5">
               {advisoryData.length === 0 ? (
                 <p className="py-6 text-center text-sm text-textmuted">No advisories.</p>
               ) : (
@@ -190,23 +190,23 @@ export default function NecDashboard({ metrics, announcements, riskZones, autoDe
                         <div key={a.id} className="rounded-lg border border-gray-100 px-3 py-2.5">
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <div className="text-sm font-medium text-textprimary leading-snug">{a.title}</div>
-                              <div className="mt-0.5 flex items-center gap-1.5 text-xs text-textmuted">
+                              <div className="text-xs font-medium text-textprimary leading-snug sm:text-sm">{a.title}</div>
+                              <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-textmuted sm:text-xs">
                                 <span className="font-medium">{a.source}</span>
                                 <span>&middot;</span>
                                 <span>{a.published_at}</span>
                               </div>
                             </div>
-                            <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${severityColor(a.severity)}`}>
+                            <span className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-medium sm:px-2 sm:text-xs ${severityColor(a.severity)}`}>
                               {a.severity}
                             </span>
                           </div>
                           {a.body && (
                             <div className="mt-2">
-                              <p className={`text-sm text-textmuted leading-relaxed ${expanded ? '' : 'line-clamp-2'}`}>{a.body}</p>
+                              <p className={`text-xs text-textmuted leading-relaxed sm:text-sm ${expanded ? '' : 'line-clamp-2'}`}>{a.body}</p>
                               {a.body.length > 80 && (
                                 <button onClick={() => setExpandedAdvisory(expanded ? null : a.id)}
-                                  className="mt-1 text-xs font-medium text-primary hover:underline">
+                                  className="mt-1 text-[11px] font-medium text-primary hover:underline sm:text-xs">
                                   {expanded ? 'Isara' : 'Basahin pa'}
                                 </button>
                               )}
@@ -226,23 +226,23 @@ export default function NecDashboard({ metrics, announcements, riskZones, autoDe
 
           {/* Agency Status */}
           <div className="rounded-xl border border-gray-200 bg-white">
-            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:px-5 sm:py-3.5">
               <div className="flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-indigo-500" />
-                <h2 className="text-sm font-semibold text-textprimary">Agency Coordination</h2>
+                <h2 className="text-xs font-semibold text-textprimary sm:text-sm">Agency Coordination</h2>
               </div>
             </div>
-            <div className="p-5">
-              <div className="space-y-1.5">
+            <div className="p-4 sm:p-5">
+              <div className="space-y-1">
                 {agencyStatus.map((a) => (
-                  <div key={a.id} className="flex items-center justify-between rounded-lg px-3 py-2.5 transition hover:bg-gray-50">
-                    <div>
-                      <span className="text-sm font-medium text-textprimary">{a.abbreviation}</span>
-                      <span className="ml-1.5 text-xs text-textmuted">{a.name}</span>
+                  <div key={a.id} className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 transition hover:bg-gray-50 sm:px-3 sm:py-2.5">
+                    <div className="min-w-0">
+                      <span className="text-xs font-medium text-textprimary sm:text-sm">{a.abbreviation}</span>
+                      <span className="ml-1 text-[10px] text-textmuted sm:text-xs">{a.name}</span>
                     </div>
-                    <div className="text-right text-xs text-textmuted">
+                    <div className="shrink-0 text-right text-[10px] text-textmuted sm:text-xs">
                       <span>{a.staff_count} staff</span>
-                      {a.permits_pending > 0 && <span className="ml-2 text-amber-600 font-medium">{a.permits_pending} pending</span>}
+                      {a.permits_pending > 0 && <span className="ml-1 text-amber-600 font-medium">{a.permits_pending} pending</span>}
                     </div>
                   </div>
                 ))}
@@ -254,8 +254,8 @@ export default function NecDashboard({ metrics, announcements, riskZones, autoDe
 
       {/* Declare Emergency Modal */}
       {showDeclareModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowDeclareModal(false)}>
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4" onClick={() => setShowDeclareModal(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl md:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold text-textprimary">Declare State of Emergency</h3>
               <button onClick={() => setShowDeclareModal(false)} className="rounded-lg p-1 text-textmuted transition hover:bg-gray-100">
@@ -282,7 +282,7 @@ export default function NecDashboard({ metrics, announcements, riskZones, autoDe
                 <div className="flex gap-2">
                   {['critical', 'high', 'medium'].map((s) => (
                     <button key={s} onClick={() => setForm({ ...form, severity: s })}
-                      className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium capitalize transition ${
+                      className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium capitalize transition sm:text-sm ${
                         form.severity === s ? severityColor(s) + ' border-2' : 'border-gray-200 text-textmuted hover:bg-gray-50'
                       }`}>
                       {s}
@@ -309,14 +309,13 @@ export default function NecDashboard({ metrics, announcements, riskZones, autoDe
   )
 }
 
-/* Simple pagination component */
 function PaginationNav({ page, total, onChange }) {
   if (total <= 1) return null
   return (
     <div className="mt-4 flex items-center justify-center gap-1">
       {Array.from({ length: total }, (_, i) => i + 1).map((p) => (
         <button key={p} onClick={() => onChange(p)}
-          className={`min-w-[32px] rounded-lg px-2.5 py-1 text-sm transition ${
+          className={`min-w-[28px] rounded-lg px-2 py-1 text-xs transition sm:min-w-[32px] sm:px-2.5 sm:py-1 sm:text-sm ${
             p === page ? 'bg-primary font-medium text-white' : 'text-textmuted hover:bg-gray-100'
           }`}>
           {p}

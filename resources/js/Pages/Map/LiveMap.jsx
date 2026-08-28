@@ -54,9 +54,6 @@ function buildMapNav(user) {
   if (isLguStaff) {
     nav.push({ label: 'LGU Dashboard', href: '/lgu/dashboard' })
   }
-  if (isAgency) {
-    nav.push({ label: 'Permits', href: '/permits/tracker' })
-  }
   return nav
 }
 
@@ -92,7 +89,7 @@ function MapLayout({ children }) {
             ) : (
               <>
                 <Link href="/login" className="hidden h-9 items-center rounded-lg px-4 text-sm font-medium text-textprimary transition hover:text-primary md:inline-flex">Log in</Link>
-                <Link href="/register" className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-white transition hover:bg-primary/90"><Zap className="h-4 w-4" /> Get Started</Link>
+                <Link href="/register" className="hidden h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-white transition hover:bg-primary/90 md:inline-flex"><Zap className="h-4 w-4" /> Get Started</Link>
               </>
             )}
             <button className="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-lg text-textprimary transition hover:bg-tint md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
@@ -105,6 +102,13 @@ function MapLayout({ children }) {
             {links.map(({ label, href }) => (
               <Link key={label} href={href} onClick={() => setMenuOpen(false)} className={`block rounded-lg px-3 py-3 text-[15px] font-medium ${isActive(href) ? 'bg-tint text-primary' : 'text-textprimary hover:bg-muted'}`}>{label}</Link>
             ))}
+            {!user && (
+              <>
+                <hr className="my-2 border-gray-100" />
+                <Link href="/login" onClick={() => setMenuOpen(false)} className="block rounded-lg px-3 py-3 text-[15px] font-medium text-primary hover:bg-muted">Log in</Link>
+                <Link href="/register" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-3 text-[15px] font-medium text-white hover:bg-primary/90"><Zap className="h-4 w-4" /> Get Started</Link>
+              </>
+            )}
           </nav>
         )}
       </header>
@@ -118,6 +122,7 @@ export default function LiveMap() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
   const [footerOpen, setFooterOpen] = useState(false)
+  const [legendOpen, setLegendOpen] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -140,70 +145,81 @@ export default function LiveMap() {
     <div className="relative h-full w-full">
       <MapView reports={data.reports} riskZones={data.risk_zones} onSelectReport={setSelected} className="absolute inset-0 h-full w-full" />
 
-      {/* ── All overlays in ONE container, above Leaflet's z-index ── */}
+      {/* ── All overlays in ONE container ── */}
       <div className="pointer-events-none absolute inset-0 z-[9999]">
 
-        {/* Top-left: legend card */}
-        <div className="pointer-events-auto absolute left-4 top-4 md:left-5 md:top-5">
-          <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-xl">
-            <h2 className="text-[10px] font-bold uppercase tracking-wider text-textmuted mb-2.5">Ano ang mga mark?</h2>
-            <ul className="space-y-2">
-              <LegendItem color="#CE1126" label="Verified" desc="Brownout na kumpirma ng LGU" />
-              <LegendItem color="#F59E0B" label="Pending" desc="Bagong report, hinihintay pa ang verification" />
-              <LegendItem color="#10B981" label="Resolved" desc="Bumalik na ang kuryente sa lugar" />
-              <LegendItem color="#3B82F6" label="Auto-Detected" desc="Nakita sa social media / web" pulse />
-              <LegendItem color="#FCD116" label="Risk Zone" desc="Predicted brownout sa susunod na 48 oras" ring />
-            </ul>
-            <p className="mt-2 pt-2 border-t border-gray-100 text-[9px] text-textmuted leading-relaxed">
-              I-click ang anumang mark para makita ang detalye.
-            </p>
+        {/* Top-left: legend card — collapsible on mobile, always open on desktop */}
+        <div className="pointer-events-auto absolute left-2 top-2 z-[9999] sm:left-4 sm:top-4 md:left-5 md:top-5">
+          {/* Mobile: collapse toggle button */}
+          <button onClick={() => setLegendOpen(!legendOpen)}
+            className="mb-1.5 flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-2 shadow-xl text-[10px] font-medium text-textprimary transition hover:bg-gray-50 sm:hidden">
+            <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            {legendOpen ? 'Itago' : 'Marks'}
+          </button>
+          {/* Legend content — always visible on md+, toggle on mobile */}
+          <div className={`${legendOpen ? 'block' : 'hidden'} sm:block`}> 
+            <div className="rounded-lg border border-gray-200 bg-white p-2 shadow-xl sm:p-3">
+              <h2 className="text-[9px] font-bold uppercase tracking-wider text-textmuted mb-1.5 sm:mb-2.5 sm:text-[10px]">Ano ang mga mark?</h2>
+              <ul className="space-y-1 sm:space-y-2">
+                <LegendItem color="#CE1126" label="Verified" desc="Kumpirma ng LGU" />
+                <LegendItem color="#F59E0B" label="Pending" desc="Hinihintay pa" />
+                <LegendItem color="#10B981" label="Resolved" desc="Bumalik na ang kuryente" />
+                <LegendItem color="#3B82F6" label="Auto-Detected" desc="Social media / web" pulse />
+                <LegendItem color="#FCD116" label="Risk Zone" desc="Predicted brownout 48 oras" ring />
+              </ul>
+              <p className="mt-1.5 pt-1.5 border-t border-gray-100 text-[8px] text-textmuted leading-relaxed sm:mt-2 sm:pt-2 sm:text-[9px]">
+                I-click ang mark para makita ang detalye.
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Bottom-right: stats + refresh */}
-        <div className="pointer-events-auto absolute bottom-4 right-20 flex items-center gap-2 md:bottom-5 md:right-24">
-          <div className="flex gap-2">
-            <Stat icon={<Zap className="h-4 w-4 text-red-600" />} value={active} label="Active" color="#CE1126" />
-            <Stat icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />} value={resolved} label="Resolved" color="#10B981" />
-            <Stat icon={<AlertTriangle className="h-4 w-4 text-amber-600" />} value={data.risk_zones.length} label="Risk" color="#F59E0B" />
+        {/* Stats bar — bottom center on mobile, bottom-right on desktop */}
+        <div className="pointer-events-auto absolute bottom-2 inset-x-0 flex justify-center px-2 sm:inset-auto sm:bottom-4 sm:right-20 sm:px-0 md:bottom-5 md:right-24">
+          <div className="flex items-center gap-1 rounded-xl border border-gray-200 bg-white/95 px-2 py-1.5 shadow-xl backdrop-blur-sm sm:gap-1.5 sm:px-3 sm:py-2">
+            <Stat icon={<Zap className="h-3 w-3 text-red-600 sm:h-4 sm:w-4" />} value={active} label="Active" color="#CE1126" />
+            <Stat icon={<CheckCircle2 className="h-3 w-3 text-emerald-600 sm:h-4 sm:w-4" />} value={resolved} label="Resolved" color="#10B981" />
+            <Stat icon={<AlertTriangle className="h-3 w-3 text-amber-600 sm:h-4 sm:w-4" />} value={data.risk_zones.length} label="Risk" color="#F59E0B" />
             {data.auto_detected_count > 0 && (
-              <Stat icon={<Eye className="h-4 w-4 text-blue-600" />} value={data.auto_detected_count} label="Auto" color="#3B82F6" />
+              <Stat icon={<Eye className="h-3 w-3 text-blue-600 sm:h-4 sm:w-4" />} value={data.auto_detected_count} label="Auto" color="#3B82F6" />
             )}
+            <div className="ml-0.5 border-l border-gray-200 pl-1.5 sm:ml-1 sm:pl-2">
+              <button onClick={load}
+                className="flex h-6 w-6 items-center justify-center rounded-md transition hover:bg-gray-100 sm:h-7 sm:w-7"
+                aria-label="Refresh map data">
+                <RefreshCw className={`h-3 w-3 text-primary ${loading ? 'animate-spin' : ''} sm:h-3.5 sm:w-3.5`} />
+              </button>
+            </div>
           </div>
-          <button onClick={load}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-xl transition hover:bg-gray-50"
-            aria-label="Refresh map data">
-            <RefreshCw className={`h-4 w-4 text-primary ${loading ? 'animate-spin' : ''}`} />
-          </button>
         </div>
 
         {/* Bottom-left: footer toggle */}
-        <div className="pointer-events-auto absolute bottom-4 left-4 md:bottom-5 md:left-5">
+        <div className="pointer-events-auto absolute bottom-2 left-2 sm:bottom-4 sm:left-4 md:bottom-5 md:left-5">
           <button
             onClick={() => setFooterOpen(!footerOpen)}
-            className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 shadow-xl text-xs font-medium text-textprimary transition hover:bg-gray-50"
+            className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-2 shadow-xl text-[10px] font-medium text-textprimary transition hover:bg-gray-50 sm:gap-1.5 sm:px-3 sm:py-2.5 sm:text-xs"
           >
-            {footerOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            {footerOpen ? <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
             {footerOpen ? 'Isara' : 'Footer'}
           </button>
         </div>
 
-        {/* Selected report card */}
+        {/* Selected report card — mobile friendly */}
         {selected && (
-          <div className="pointer-events-auto absolute bottom-16 left-4 w-[min(92vw,320px)] rounded-xl border border-gray-200 bg-white p-4 shadow-xl md:bottom-5 md:left-1/2 md:-translate-x-1/2">
+          <div className="pointer-events-auto absolute bottom-14 left-2 w-[min(90vw,300px)] rounded-xl border border-gray-200 bg-white p-3 shadow-xl sm:bottom-16 sm:left-4 sm:w-[min(92vw,320px)] sm:p-4 md:bottom-5 md:left-1/2 md:-translate-x-1/2">
             <button onClick={() => setSelected(null)} aria-label="Close"
-              className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-textmuted hover:bg-muted text-sm">&times;</button>
-            <div className="flex items-center gap-2 pr-6">
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+              className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-textmuted hover:bg-muted text-sm sm:h-7 sm:w-7">&times;</button>
+            <div className="flex items-center gap-1.5 pr-5 sm:gap-2 sm:pr-6">
+              <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase sm:px-2 sm:text-[10px] ${
                 selected.status === 'verified' ? 'bg-danger/10 text-red-700' : selected.status === 'resolved' ? 'bg-success/10 text-emerald-700' : 'bg-warning/15 text-yellow-800'}`}>
                 {selected.status}
               </span>
-              <span className="text-sm font-semibold">#{selected.id}</span>
+              <span className="text-xs font-semibold sm:text-sm">#{selected.id}</span>
             </div>
-            <p className="mt-1 text-xs text-textmuted">
+            <p className="mt-1 text-[10px] text-textmuted sm:text-xs">
               {selected.lgu ?? 'Philippines'} · {selected.outage_type?.replace(/_/g, ' ')} · severity {selected.severity}/100
             </p>
-            <Link href={`/reports/${selected.id}`} className="mt-2.5 inline-flex h-8 items-center rounded-lg bg-primary px-3 text-xs font-medium text-white transition hover:bg-primary/90">
+            <Link href={`/reports/${selected.id}`} className="mt-2 inline-flex h-7 items-center rounded-lg bg-primary px-2.5 text-[10px] font-medium text-white transition hover:bg-primary/90 sm:mt-2.5 sm:h-8 sm:px-3 sm:text-xs">
               View details
             </Link>
           </div>
@@ -224,22 +240,22 @@ export default function LiveMap() {
   )
 }
 
-function LegendItem({ color, label, desc, ring = false, pulse = false }) {
+function LegendItem({ color, label, desc, mobileDesc, ring = false, pulse = false }) {
   return (
-    <li className="flex items-center gap-2.5">
+    <li className="flex items-center gap-1.5 sm:gap-2.5">
       {ring ? (
-        <span className="inline-flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-full border-[2px]" style={{ borderColor: color }}><span className="h-[4px] w-[4px] rounded-full bg-current" style={{ color: color }} /></span>
+        <span className="inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-full border-[2px] sm:h-[14px] sm:w-[14px]" style={{ borderColor: color }}><span className="h-[3px] w-[3px] rounded-full bg-current sm:h-[4px] sm:w-[4px]" style={{ color: color }} /></span>
       ) : pulse ? (
-        <span className="relative inline-flex h-[14px] w-[14px] shrink-0 items-center justify-center">
+        <span className="relative inline-flex h-3 w-3 shrink-0 items-center justify-center sm:h-[14px] sm:w-[14px]">
           <span className="absolute inline-flex h-full w-full rounded-full opacity-40" style={{ background: color, animation: 'pulse-ring 2s infinite' }} />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full" style={{ background: color }} />
+          <span className="relative inline-flex h-2 w-2 rounded-full sm:h-2.5 sm:w-2.5" style={{ background: color }} />
         </span>
       ) : (
-        <span className="inline-block h-3 w-3 shrink-0 rounded-full" style={{ background: color }} />
+        <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full sm:h-3 sm:w-3" style={{ background: color }} />
       )}
       <div className="min-w-0">
-        <span className="text-[11px] font-semibold text-textprimary leading-none">{label}</span>
-        <p className="text-[10px] text-textmuted leading-snug mt-0.5">{desc}</p>
+        <span className="text-[10px] font-semibold text-textprimary leading-none sm:text-[11px]">{label}</span>
+        <p className="text-[8px] text-textmuted leading-snug mt-0.5 sm:text-[10px]">{desc}</p>
       </div>
     </li>
   )
@@ -247,11 +263,11 @@ function LegendItem({ color, label, desc, ring = false, pulse = false }) {
 
 function Stat({ icon, value, label, color }) {
   return (
-    <div className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 shadow-xl">
-      <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: `${color}15` }}>{icon}</span>
-      <div className="flex items-baseline gap-1">
-        <span className="text-lg font-extrabold tabular-nums" style={{ color }}>{value}</span>
-        <span className="text-[10px] font-medium text-textmuted uppercase tracking-wide">{label}</span>
+    <div className="flex items-center gap-0.5 sm:gap-1.5">
+      <span className="flex h-4 w-4 items-center justify-center rounded sm:h-5 sm:w-5 sm:rounded-md" style={{ background: `${color}15` }}>{icon}</span>
+      <div className="flex items-baseline gap-0.5">
+        <span className="text-xs font-extrabold tabular-nums sm:text-sm" style={{ color }}>{value}</span>
+        <span className="text-[7px] font-medium text-textmuted uppercase tracking-wide sm:text-[10px]">{label}</span>
       </div>
     </div>
   )

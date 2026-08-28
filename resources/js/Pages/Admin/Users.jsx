@@ -61,12 +61,12 @@ export default function AdminUsers({ users, roles, lgus, agencies }) {
   const inputClass = 'rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm transition focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary/20'
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       {/* Admin sub-nav */}
-      <nav className="flex gap-1 border-b border-gray-100 pb-px">
+      <nav className="flex gap-1 overflow-x-auto border-b border-gray-100 pb-px" style={{ scrollbarWidth: 'none' }}>
         {ADMIN_NAV.map(({ label, href, icon: Icon }) => (
           <Link key={href} href={href}
-            className={`inline-flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition ${
+            className={`inline-flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition md:px-4 ${
               url === href
                 ? 'border-primary text-primary'
                 : 'border-transparent text-textmuted hover:text-textprimary'
@@ -79,40 +79,40 @@ export default function AdminUsers({ users, roles, lgus, agencies }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-textprimary">User Management</h1>
-          <p className="mt-0.5 text-sm text-textmuted">{users.total} user{users.total !== 1 ? 's' : ''} total</p>
+          <h1 className="text-lg font-bold text-textprimary md:text-xl">User Management</h1>
+          <p className="mt-0.5 text-xs text-textmuted md:text-sm">{users.total} user{users.total !== 1 ? 's' : ''} total</p>
         </div>
       </div>
 
-      {/* Filters — compact single row */}
+      {/* Filters */}
       <div className="flex flex-wrap items-end gap-2">
-        <div className="relative flex-1 min-w-[180px]">
+        <div className="relative min-w-[180px] flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-textmuted" />
-          <input type="text" placeholder="Search name or email..." value={search}
+          <input type="text" placeholder="Search..." value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
             className={`${inputClass} w-full pl-9`} />
         </div>
 
         <select value={filters.role_id} onChange={(e) => setFilters({ ...filters, role_id: e.target.value })}
-          className={inputClass}>
+          className={`${inputClass} min-w-0 flex-shrink`}>
           <option value="">All roles</option>
           {roles.map((r) => <option key={r.id} value={r.id}>{r.name.replace(/_/g, ' ')}</option>)}
         </select>
 
         <select value={filters.lgu_id} onChange={(e) => setFilters({ ...filters, lgu_id: e.target.value })}
-          className={`${inputClass} min-w-[140px]`}>
+          className={`${inputClass} min-w-0 flex-shrink`}>
           <option value="">All LGUs</option>
           {lgus.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
         </select>
 
         <select value={filters.agency_id} onChange={(e) => setFilters({ ...filters, agency_id: e.target.value })}
-          className={`${inputClass} min-w-[120px]`}>
+          className={`${inputClass} min-w-0 flex-shrink`}>
           <option value="">All agencies</option>
           {agencies.map((a) => <option key={a.id} value={a.id}>{a.abbreviation}</option>)}
         </select>
 
-        <label className="flex items-center gap-1.5 text-sm text-textmuted">
+        <label className="flex items-center gap-1.5 text-xs text-textmuted md:text-sm">
           <input type="checkbox" checked={filters.show_deactivated}
             onChange={(e) => setFilters({ ...filters, show_deactivated: e.target.checked })}
             className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
@@ -121,19 +121,19 @@ export default function AdminUsers({ users, roles, lgus, agencies }) {
 
         <div className="flex gap-1.5">
           <button onClick={applyFilters}
-            className="rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-white transition hover:bg-primary/90">
+            className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90 md:text-sm md:px-3.5">
             Filter
           </button>
           <button onClick={clearFilters}
-            className="rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-textmuted transition hover:bg-gray-50">
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-textmuted transition hover:bg-gray-50 md:text-sm md:px-3.5">
             Clear
           </button>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-        <table className="w-full min-w-[860px] text-sm">
+      {/* Desktop table */}
+      <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white md:block">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100 text-left text-xs font-medium uppercase tracking-wide text-textmuted">
               <th className="px-5 py-3">User</th>
@@ -223,12 +223,95 @@ export default function AdminUsers({ users, roles, lgus, agencies }) {
         </table>
       </div>
 
+      {/* Mobile cards */}
+      <div className="space-y-3 md:hidden">
+        {users.data.length === 0 && (
+          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-textmuted">No users found.</div>
+        )}
+        {users.data.map((u) => {
+          const isDeleted = !!u.deleted_at
+          return (
+            <div key={u.id} className={`rounded-xl border border-gray-200 bg-white p-4 ${isDeleted ? 'opacity-40' : ''}`}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="font-medium text-textprimary truncate">{u.name}</div>
+                  <div className="text-xs text-textmuted truncate">{u.email}</div>
+                </div>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                  isDeleted ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
+                }`}>
+                  {isDeleted ? 'Inactive' : 'Active'}
+                </span>
+              </div>
+
+              <div className="mt-3 space-y-2">
+                <div>
+                  <label className="text-[10px] font-medium text-textmuted">Role</label>
+                  <select value={edits[u.id]?.role_id ?? u.role?.id}
+                    onChange={(e) => setEdits({ ...edits, [u.id]: { ...edits[u.id], role_id: e.target.value } })}
+                    disabled={isDeleted}
+                    className="mt-0.5 w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs capitalize transition focus:border-primary focus:bg-white focus:outline-none disabled:opacity-40">
+                    {roles.map((r) => <option key={r.id} value={r.id}>{r.name.replace(/_/g, ' ')}</option>)}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-medium text-textmuted">LGU</label>
+                    <select value={edits[u.id]?.lgu_id ?? u.lgu_id ?? ''}
+                      onChange={(e) => setEdits({ ...edits, [u.id]: { ...edits[u.id], lgu_id: e.target.value } })}
+                      disabled={isDeleted}
+                      className="mt-0.5 w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs transition focus:border-primary focus:bg-white focus:outline-none disabled:opacity-40">
+                      <option value="">—</option>
+                      {lgus.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-medium text-textmuted">Agency</label>
+                    <select value={edits[u.id]?.agency_id ?? u.agency_id ?? ''}
+                      onChange={(e) => setEdits({ ...edits, [u.id]: { ...edits[u.id], agency_id: e.target.value } })}
+                      disabled={isDeleted}
+                      className="mt-0.5 w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs transition focus:border-primary focus:bg-white focus:outline-none disabled:opacity-40">
+                      <option value="">—</option>
+                      {agencies.map((a) => <option key={a.id} value={a.id}>{a.abbreviation}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center gap-2 border-t border-gray-100 pt-3">
+                {!isDeleted ? (
+                  <>
+                    <button onClick={() => save(u)}
+                      className="flex-1 rounded-lg bg-primary py-2 text-xs font-medium text-white transition hover:bg-primary/90">
+                      Save
+                    </button>
+                    <button onClick={() => setResetModal(u)} title="Reset password"
+                      className="rounded-lg border border-gray-200 p-2 text-textmuted transition hover:bg-amber-50 hover:text-amber-600">
+                      <KeyRound className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => deactivate(u)} title="Deactivate"
+                      className="rounded-lg border border-gray-200 p-2 text-textmuted transition hover:bg-red-50 hover:text-red-600">
+                      <Ban className="h-4 w-4" />
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => reactivate(u)}
+                    className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-500 py-2 text-xs font-medium text-white transition hover:bg-emerald-600">
+                    <RotateCcw className="h-3.5 w-3.5" /> Reactivate
+                  </button>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
       {/* Pagination */}
       {users.links.length > 3 && (
         <nav className="flex items-center justify-center gap-1">
           {users.links.map((l, i) => l.url ? (
             <a key={i} href={l.url}
-              className={`min-w-[36px] rounded-lg px-3 py-1.5 text-center text-sm transition ${
+              className={`min-w-[32px] rounded-lg px-2.5 py-1.5 text-center text-xs transition md:min-w-[36px] md:px-3 md:py-1.5 md:text-sm ${
                 l.active
                   ? 'bg-primary font-medium text-white'
                   : 'text-textmuted hover:bg-gray-100'
@@ -241,7 +324,7 @@ export default function AdminUsers({ users, roles, lgus, agencies }) {
       {/* Password Reset Modal */}
       {resetModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setResetModal(null)}>
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl md:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold text-textprimary">Reset Password</h3>
               <button onClick={() => { setResetModal(null); setNewPassword('') }}

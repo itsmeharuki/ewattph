@@ -18,7 +18,7 @@ export default function Home({ greeting, myReportsCount = 0, myActivePermits = 0
       {/* ── SECTION 1 · HERO (whole first screen) ─────────────── */}
       <section
         aria-label="Hero"
-        className="relative flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#F0F4FF] via-[#E8EEFF]/50 to-transparent px-4 py-16 text-center"
+        className="relative flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#F0F4FF] via-[#E8EEFF]/50 to-transparent px-4 pb-12 pt-8 text-center md:pb-16 md:pt-12"
       >
         <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-primary/10 blur-3xl" />
         <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-32 h-96 w-96 rounded-full bg-accent/15 blur-3xl" />
@@ -34,26 +34,26 @@ export default function Home({ greeting, myReportsCount = 0, myActivePermits = 0
         />
 
         <div className="relative mx-auto w-full max-w-4xl">
-          <span className="hero-in inline-flex items-center gap-1.5 rounded-full border border-brandborder bg-white px-4 py-1.5 text-xs font-semibold text-primary shadow-sm">
+          <span className="hero-in inline-flex items-center gap-1.5 rounded-full border border-brandborder bg-white px-3 py-1 text-[10px] font-semibold text-primary shadow-sm sm:px-4 sm:py-1.5 sm:text-xs">
             <BadgeCheck className="h-4 w-4" /> National Energy Intelligence Platform
           </span>
 
-          <h1 className="hero-in mx-auto mt-7 text-balance text-5xl font-bold leading-[1.1] tracking-tight text-textprimary md:text-6xl lg:text-7xl" style={{ animationDelay: '100ms' }}>
+          <h1 className="hero-in mx-auto mt-5 text-balance text-[2.5rem] font-bold leading-[1.1] tracking-tight text-textprimary sm:text-5xl md:mt-7 md:text-6xl lg:text-7xl" style={{ animationDelay: '100ms' }}>
             All Grid Intelligence.
             <span className="block text-primary">One Platform.</span>
           </h1>
-          <p className="hero-in mx-auto mt-7 max-w-xl text-base font-light leading-[1.85] text-textmuted md:text-lg" style={{ animationDelay: '200ms' }}>
+          <p className="hero-in mx-auto mt-5 max-w-[18rem] text-sm font-light leading-[1.85] text-textmuted sm:max-w-[28rem] sm:text-base md:mt-7 md:max-w-xl md:text-lg" style={{ animationDelay: '200ms' }}>
             eWattPH connects citizens, LGUs, and national agencies into one live picture of the
             Philippine power grid — report outages, track permits, and respond faster during the energy emergency.
           </p>
 
-          <div className="hero-in mt-10 flex flex-wrap items-center justify-center gap-3.5" style={{ animationDelay: '300ms' }}>
+          <div className="hero-in mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-3.5 md:mt-10" style={{ animationDelay: '300ms' }}>
             <Link href="/monitoring"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-sm font-medium text-white shadow-xl shadow-[#0040E7]/25 transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:bg-primary/90">
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white shadow-xl shadow-[#0040E7]/25 transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:bg-primary/90 sm:px-8 sm:py-3.5">
               <Radar className="h-4 w-4" /> Live Monitoring
             </Link>
             <Link href="/reports/create"
-              className="inline-flex items-center gap-2 rounded-lg border border-brandborder bg-white/90 px-8 py-3.5 text-sm font-medium text-primary backdrop-blur transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:border-primary/40 hover:bg-tint">
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-brandborder bg-white/90 px-6 py-3 text-sm font-medium text-primary backdrop-blur transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:border-primary/40 hover:bg-tint sm:px-8 sm:py-3.5">
               Report an Outage <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
