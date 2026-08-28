@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="public/images/ewattph-mark.svg" alt="eWattPH" width="140" />
+
 # eWattPH
 
 **National Energy Intelligence Platform for the Philippine Government**
