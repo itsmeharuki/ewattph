@@ -51,6 +51,7 @@ function buildNav(user) {
   if (isAgency) {
     return [
       { label: 'DOE Dashboard', href: '/doe', icon: LayoutDashboard },
+      { label: 'History', href: '/doe/history', icon: FileText },
       { label: 'Monitoring', href: '/monitoring', icon: Radar },
       { label: 'Live Map', href: '/map', icon: MapPin },
     ]

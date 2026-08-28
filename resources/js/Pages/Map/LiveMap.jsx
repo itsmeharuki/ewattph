@@ -34,6 +34,7 @@ function buildMapNav(user) {
   if (isAgency) {
     return [
       { label: 'DOE Dashboard', href: '/doe' },
+      { label: 'History', href: '/doe/history' },
       { label: 'Monitoring', href: '/monitoring' },
       { label: 'Live Map', href: '/map' },
     ]

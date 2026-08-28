@@ -105,5 +105,6 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureRole::class.':citizen,lgu_
             Route::post('/permits/{permit}/approve', [\App\Http\Controllers\Doe\DashboardController::class, 'approvePermit'])->name('doe.permits.approve');
             Route::post('/permits/{permit}/reject', [\App\Http\Controllers\Doe\DashboardController::class, 'rejectPermit'])->name('doe.permits.reject');
             Route::post('/advisories', [\App\Http\Controllers\Doe\DashboardController::class, 'storeAdvisory'])->name('doe.advisories.store');
+            Route::get('/history', [\App\Http\Controllers\Doe\HistoryController::class, 'index'])->name('doe.history');
         });
     });
