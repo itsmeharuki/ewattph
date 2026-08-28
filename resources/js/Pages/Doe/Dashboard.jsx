@@ -7,9 +7,18 @@ export default function DoeDashboard({ metrics, permits, advisories, staffActivi
   const [advisoryForm, setAdvisoryForm] = useState({ title: '', body: '', severity: 'info' })
   const [rejectModal, setRejectModal] = useState(null)
   const [rejectNote, setRejectNote] = useState('')
+  const [recommendModal, setRecommendModal] = useState(null)
+  const [recommendNote, setRecommendNote] = useState('')
+
+  const recommendPermit = (id, decision) => {
+    router.post(`/doe/permits/${id}/recommend`, { decision, decision_note: recommendNote }, {
+      preserveScroll: true,
+      onSuccess: () => { setRecommendModal(null); setRecommendNote('') },
+    })
+  }
 
   const approvePermit = (id) => {
-    if (!confirm('Approve this permit?')) return
+    if (!confirm('Final approve this permit?')) return
     router.post(`/doe/permits/${id}/approve`, {}, { preserveScroll: true })
   }
 
@@ -32,7 +41,9 @@ export default function DoeDashboard({ metrics, permits, advisories, staffActivi
   const permitStatusColor = (s) => {
     if (s === 'approved') return 'bg-emerald-50 text-emerald-700'
     if (s === 'rejected') return 'bg-red-50 text-red-700'
-    if (s === 'in_review') return 'bg-blue-50 text-blue-700'
+    if (s === 'recommended_for_approval') return 'bg-blue-50 text-blue-700'
+    if (s === 'recommended_for_rejection') return 'bg-orange-50 text-orange-700'
+    if (s === 'in_review') return 'bg-indigo-50 text-indigo-700'
     return 'bg-amber-50 text-amber-700'
   }
 
@@ -50,7 +61,7 @@ export default function DoeDashboard({ metrics, permits, advisories, staffActivi
         <p className="mt-0.5 text-xs text-textmuted md:text-sm">National energy monitoring and permit processing</p>
       </div>
 
-      {/* Stats — 2 col mobile, 4 col desktop */}
+      {/* Stats */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
         {[
           { label: 'Power Reliability', value: `${metrics.power_reliability}%`, color: 'text-emerald-600', bg: 'bg-emerald-50' },
@@ -70,7 +81,7 @@ export default function DoeDashboard({ metrics, permits, advisories, staffActivi
         ))}
       </div>
 
-      {/* Content grid — single column mobile, 3-col desktop */}
+      {/* Content grid */}
       <div className="grid gap-4 md:gap-5 lg:grid-cols-3">
         <div className="space-y-4 md:col-span-2 md:space-y-5">
           {/* Permits */}
@@ -79,6 +90,8 @@ export default function DoeDashboard({ metrics, permits, advisories, staffActivi
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-primary" />
                 <h2 className="text-xs font-semibold text-textprimary sm:text-sm">Permit Applications</h2>
+                {!isHead && <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary">Staff</span>}
+                {isHead && <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-medium text-emerald-700">Head</span>}
               </div>
               <span className="text-[10px] text-textmuted sm:text-xs">{permits.total} total</span>
             </div>
@@ -99,24 +112,46 @@ export default function DoeDashboard({ metrics, permits, advisories, staffActivi
                               </span>
                             </div>
                             <div className="mt-0.5 text-[10px] text-textmuted sm:text-xs">
-                              {p.applicant} &middot; {p.submitted_at}
+                              {p.applicant} · {p.submitted_at}
                             </div>
                             {p.ai_compliance_score > 0 && (
                               <div className="mt-0.5 text-[10px] text-textmuted sm:text-xs">AI Score: {p.ai_compliance_score}/100</div>
                             )}
+                            {p.decision_note && (
+                              <div className="mt-0.5 text-[10px] italic text-textmuted sm:text-xs">Note: {p.decision_note}</div>
+                            )}
                           </div>
-                          {(p.status === 'submitted' || p.status === 'in_review') && (
-                            <div className="flex items-center gap-1 shrink-0">
+
+                          {/* Action buttons */}
+                          <div className="flex items-center gap-1 shrink-0">
+                            {/* Staff: can recommend on submitted/in_review */}
+                            {!isHead && (p.status === 'submitted' || p.status === 'in_review') && (
+                              <>
+                                <button onClick={() => setRecommendModal({ ...p, _decision: 'recommended_for_approval' })}
+                                  className="rounded-md bg-emerald-500 px-2 py-1 text-[10px] font-medium text-white transition hover:bg-emerald-600 sm:px-2.5 sm:py-1 sm:text-[11px]">
+                                  Recommend
+                                </button>
+                                <button onClick={() => setRecommendModal({ ...p, _decision: 'recommended_for_rejection' })}
+                                  className="rounded-md bg-orange-500 px-2 py-1 text-[10px] font-medium text-white transition hover:bg-orange-600 sm:px-2.5 sm:py-1 sm:text-[11px]">
+                                  Reject
+                                </button>
+                              </>
+                            )}
+
+                            {/* Head: can approve/reject recommended permits */}
+                            {isHead && p.status === 'recommended_for_approval' && (
                               <button onClick={() => approvePermit(p.id)}
-                                className="rounded-md bg-emerald-500 px-2 py-1 text-[10px] font-medium text-white transition hover:bg-emerald-600 sm:px-3 sm:py-1.5 sm:text-xs">
+                                className="rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-medium text-white transition hover:bg-emerald-700 sm:px-2.5 sm:py-1 sm:text-[11px]">
                                 Approve
                               </button>
+                            )}
+                            {isHead && p.status === 'recommended_for_rejection' && (
                               <button onClick={() => setRejectModal(p)}
-                                className="rounded-md bg-red-500 px-2 py-1 text-[10px] font-medium text-white transition hover:bg-red-600 sm:px-3 sm:py-1.5 sm:text-xs">
+                                className="rounded-md bg-red-500 px-2 py-1 text-[10px] font-medium text-white transition hover:bg-red-600 sm:px-2.5 sm:py-1 sm:text-[11px]">
                                 Reject
                               </button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -215,12 +250,48 @@ export default function DoeDashboard({ metrics, permits, advisories, staffActivi
         </div>
       </div>
 
-      {/* Reject Permit Modal */}
+      {/* Recommend Modal (Staff only) */}
+      {recommendModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4" onClick={() => { setRecommendModal(null); setRecommendNote('') }}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl md:p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold text-textprimary">
+                {recommendModal._decision === 'recommended_for_approval' ? 'Recommend Approval' : 'Recommend Rejection'}
+              </h3>
+              <button onClick={() => { setRecommendModal(null); setRecommendNote('') }} className="rounded-lg p-1 text-textmuted transition hover:bg-gray-100">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="mt-1 text-sm text-textmuted">
+              {recommendModal._decision === 'recommended_for_approval'
+                ? 'This will send the permit to the Agency Head for final approval.'
+                : 'This will recommend rejection. The Agency Head will make the final decision.'}
+            </p>
+            <textarea rows={3} placeholder="Note (optional)..." value={recommendNote}
+              onChange={(e) => setRecommendNote(e.target.value)}
+              className="mt-4 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary/20 resize-none" />
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => { setRecommendModal(null); setRecommendNote('') }}
+                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-textmuted transition hover:bg-gray-50">
+                Cancel
+              </button>
+              <button onClick={() => recommendPermit(recommendModal.id, recommendModal._decision)}
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition ${
+                  recommendModal._decision === 'recommended_for_approval' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-600 hover:bg-orange-700'
+                }`}>
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Permit Modal (Head only) */}
       {rejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4" onClick={() => setRejectModal(null)}>
           <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl md:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-textprimary">Reject Permit</h3>
+              <h3 className="text-base font-semibold text-textprimary">Final Rejection</h3>
               <button onClick={() => { setRejectModal(null); setRejectNote('') }} className="rounded-lg p-1 text-textmuted transition hover:bg-gray-100">
                 <X className="h-4 w-4" />
               </button>

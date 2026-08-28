@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Doe;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Models\AuditLog;
 use App\Models\Permit;
 use App\Models\User;
 use App\Services\MetricsService;
@@ -24,7 +25,7 @@ class DashboardController extends Controller
         // Permits assigned to DOE
         $permits = Permit::query()
             ->where('agency_id', $user->agency_id)
-            ->with('applicant:id,name,email')
+            ->with('applicant:id,name,email', 'reviewer:id,name')
             ->latest()
             ->paginate(10)
             ->through(fn ($p) => [
@@ -34,6 +35,8 @@ class DashboardController extends Controller
                 'status' => $p->status,
                 'ai_compliance_score' => $p->ai_compliance_score,
                 'applicant' => $p->applicant?->name,
+                'reviewer' => $p->reviewer?->name,
+                'decision_note' => $p->decision_note,
                 'submitted_at' => $p->created_at->diffForHumans(),
             ]);
 
@@ -57,7 +60,7 @@ class DashboardController extends Controller
                 ->where('id', '!=', $user->id)
                 ->pluck('id');
 
-            $staffActivity = \App\Models\AuditLog::whereIn('user_id', $staffIds)
+            $staffActivity = AuditLog::whereIn('user_id', $staffIds)
                 ->with('user:id,name')
                 ->latest('created_at')
                 ->take(20)
@@ -80,44 +83,77 @@ class DashboardController extends Controller
         ]);
     }
 
+    /** Agency Staff recommends approval/rejection */
+    public function recommendPermit(Request $request, Permit $permit)
+    {
+        $user = $request->user();
+        abort_unless($user->hasRole('agency_staff'), 403);
+        abort_if($permit->agency_id !== $user->agency_id, 403);
+        abort_if(!in_array($permit->status, ['submitted', 'in_review']), 422, 'Permit cannot be recommended in its current status.');
+
+        $validated = $request->validate([
+            'decision' => ['required', 'in:recommended_for_approval,recommended_for_rejection'],
+            'decision_note' => ['nullable', 'string'],
+        ]);
+
+        $old = ['status' => $permit->status];
+        $permit->update([
+            'status' => $validated['decision'],
+            'reviewed_by' => $user->id,
+            'reviewed_at' => now(),
+            'decision_note' => $validated['decision_note'] ?? null,
+        ]);
+
+        AuditLog::record("permit_{$validated['decision']}", $permit, $old, ['status' => $validated['decision']]);
+
+        return back()->with('success', 'Recommendation submitted.');
+    }
+
+    /** Agency Head makes final approval/rejection */
     public function approvePermit(Request $request, Permit $permit)
     {
-        abort_unless($request->user()->hasRole('agency_staff', 'agency_head'), 403);
-        abort_if($permit->agency_id !== $request->user()->agency_id, 403);
+        $user = $request->user();
+        abort_unless($user->hasRole('agency_head'), 403);
+        abort_if($permit->agency_id !== $user->agency_id, 403);
+        abort_unless($permit->status === 'recommended_for_approval', 422, 'Permit must be recommended for approval first.');
 
         $validated = $request->validate([
             'decision_note' => ['nullable', 'string'],
         ]);
 
+        $old = ['status' => $permit->status];
         $permit->update([
             'status' => 'approved',
-            'reviewed_by' => $request->user()->id,
+            'reviewed_by' => $user->id,
             'reviewed_at' => now(),
             'decision_note' => $validated['decision_note'] ?? null,
         ]);
 
-        \App\Models\AuditLog::record('permit_approved', $permit, ['status' => $permit->getOriginal('status')], ['status' => 'approved']);
+        AuditLog::record('permit_approved', $permit, $old, ['status' => 'approved']);
 
         return back()->with('success', 'Permit approved.');
     }
 
     public function rejectPermit(Request $request, Permit $permit)
     {
-        abort_unless($request->user()->hasRole('agency_staff', 'agency_head'), 403);
-        abort_if($permit->agency_id !== $request->user()->agency_id, 403);
+        $user = $request->user();
+        abort_unless($user->hasRole('agency_head'), 403);
+        abort_if($permit->agency_id !== $user->agency_id, 403);
+        abort_unless($permit->status === 'recommended_for_rejection', 422, 'Permit must be recommended for rejection first.');
 
         $validated = $request->validate([
             'decision_note' => ['required', 'string'],
         ]);
 
+        $old = ['status' => $permit->status];
         $permit->update([
             'status' => 'rejected',
-            'reviewed_by' => $request->user()->id,
+            'reviewed_by' => $user->id,
             'reviewed_at' => now(),
             'decision_note' => $validated['decision_note'],
         ]);
 
-        \App\Models\AuditLog::record('permit_rejected', $permit, ['status' => $permit->getOriginal('status')], ['status' => 'rejected']);
+        AuditLog::record('permit_rejected', $permit, $old, ['status' => 'rejected']);
 
         return back()->with('success', 'Permit rejected.');
     }

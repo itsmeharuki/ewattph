@@ -28,23 +28,38 @@ export default function Create({ lgus, selectedLgu = null }) {
       return
     }
     setLocating(true)
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        const nearest = nearestLgu(lgus, coords.latitude, coords.longitude)
-        setData((d) => ({
-          ...d,
-          latitude: coords.latitude.toFixed(7),
-          longitude: coords.longitude.toFixed(7),
-          lgu_id: d.lgu_id || String(nearest?.id ?? ''),
-        }))
-        setLocating(false)
-      },
-      () => {
-        alert('Could not get your location. Please pick your city/municipality below.')
-        setLocating(false)
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    )
+
+    // Try high-accuracy GPS first, fallback to fast location
+    const tryGeo = (highAcc) => {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          const nearest = nearestLgu(lgus, coords.latitude, coords.longitude)
+          setData((d) => ({
+            ...d,
+            latitude: coords.latitude.toFixed(7),
+            longitude: coords.longitude.toFixed(7),
+            lgu_id: d.lgu_id || String(nearest?.id ?? ''),
+          }))
+          setLocating(false)
+        },
+        (err) => {
+          // If high accuracy failed, try with lower accuracy (faster, IP-based)
+          if (highAcc && (err.code === 2 || err.code === 3)) {
+            tryGeo(false)
+          } else {
+            alert('Could not get your location. Please pick your city/municipality below.')
+            setLocating(false)
+          }
+        },
+        {
+          enableHighAccuracy: highAcc,
+          timeout: highAcc ? 30000 : 10000,
+          maximumAge: highAcc ? 0 : 300000,
+        },
+      )
+    }
+
+    tryGeo(true)
   }
 
   const submit = (e) => {
@@ -136,9 +151,19 @@ export default function Create({ lgus, selectedLgu = null }) {
 }
 
 function nearestLgu(lgus, lat, lng) {
-  return [...lgus].sort((a, b) =>
-    ((a.latitude - lat) ** 2 + (a.longitude - lng) ** 2) - ((b.latitude - lat) ** 2 + (b.longitude - lng) ** 2)
-  )[0]
+  // Haversine formula for accurate distance on Earth's surface
+  const toRad = (d) => (d * Math.PI) / 180
+  const R = 6371 // Earth radius in km
+
+  const withDist = lgus.map((lgu) => {
+    const dLat = toRad(lat - lgu.latitude)
+    const dLng = toRad(lng - lgu.longitude)
+    const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lgu.latitude)) * Math.cos(toRad(lat)) * Math.sin(dLng / 2) ** 2
+    return { lgu, dist: 2 * R * Math.asin(Math.sqrt(x)) }
+  })
+
+  withDist.sort((a, b) => a.dist - b.dist)
+  return withDist[0]?.lgu
 }
 
 function toFormData(data) {

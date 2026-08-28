@@ -80,6 +80,16 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureRole::class.':citizen,lgu_
         Route::post('/lgu/reports/{report}/verify', [LguDashboardController::class, 'verify'])->name('lgu.reports.verify');
         Route::post('/lgu/reports/{report}/dispatch', [LguDashboardController::class, 'dispatch'])->name('lgu.reports.dispatch');
         Route::post('/lgu/reports/{report}/resolve', [LguDashboardController::class, 'resolve'])->name('lgu.reports.resolve');
+        // LGU permits — two-step approval
+        Route::post('/lgu/permits/{permit}/recommend', [LguDashboardController::class, 'recommendPermit'])
+            ->middleware(\App\Http\Middleware\EnsureRole::class.':lgu_staff,lgu_admin')
+            ->name('lgu.permits.recommend');
+        Route::post('/lgu/permits/{permit}/approve', [LguDashboardController::class, 'approvePermit'])
+            ->middleware(\App\Http\Middleware\EnsureRole::class.':lgu_admin')
+            ->name('lgu.permits.approve');
+        Route::post('/lgu/permits/{permit}/reject', [LguDashboardController::class, 'rejectPermit'])
+            ->middleware(\App\Http\Middleware\EnsureRole::class.':lgu_admin')
+            ->name('lgu.permits.reject');
 
         // Admin panel (Super Admin only — system administration)
         Route::prefix('admin')->middleware(\App\Http\Middleware\EnsureRole::class.':super_admin')->group(function () {
@@ -103,8 +113,16 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureRole::class.':citizen,lgu_
         // DOE panel (Department of Energy — agency_staff + agency_head)
         Route::prefix('doe')->middleware(\App\Http\Middleware\EnsureRole::class.':agency_staff,agency_head')->group(function () {
             Route::get('/', [\App\Http\Controllers\Doe\DashboardController::class, 'index'])->name('doe.dashboard');
-            Route::post('/permits/{permit}/approve', [\App\Http\Controllers\Doe\DashboardController::class, 'approvePermit'])->name('doe.permits.approve');
-            Route::post('/permits/{permit}/reject', [\App\Http\Controllers\Doe\DashboardController::class, 'rejectPermit'])->name('doe.permits.reject');
+            // DOE permits — two-step approval
+            Route::post('/permits/{permit}/recommend', [\App\Http\Controllers\Doe\DashboardController::class, 'recommendPermit'])
+                ->middleware(\App\Http\Middleware\EnsureRole::class.':agency_staff')
+                ->name('doe.permits.recommend');
+            Route::post('/permits/{permit}/approve', [\App\Http\Controllers\Doe\DashboardController::class, 'approvePermit'])
+                ->middleware(\App\Http\Middleware\EnsureRole::class.':agency_head')
+                ->name('doe.permits.approve');
+            Route::post('/permits/{permit}/reject', [\App\Http\Controllers\Doe\DashboardController::class, 'rejectPermit'])
+                ->middleware(\App\Http\Middleware\EnsureRole::class.':agency_head')
+                ->name('doe.permits.reject');
             Route::post('/advisories', [\App\Http\Controllers\Doe\DashboardController::class, 'storeAdvisory'])->name('doe.advisories.store');
             Route::get('/history', [\App\Http\Controllers\Doe\HistoryController::class, 'index'])->name('doe.history');
         });
