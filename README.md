@@ -12,223 +12,186 @@
 
 ---
 
-## What is eWattPH?
+## Overview
 
-eWattPH is a web application that helps the Philippine government respond faster during power outages. It connects citizens, local government units (LGUs), and national agencies into one platform with a live map of brownouts across the Philippines.
+eWattPH is a national-scale web platform that provides real-time power outage intelligence to the Philippine government. It connects citizens, local government units, national agencies, and the National Emergency Council into a single, transparent ecosystem built around one live national map of the power grid.
 
-**Key features:**
-- Citizens can report brownouts with GPS location
-- LGU staff can verify and dispatch response teams
-- DOE can track permits and issue advisories
-- National Emergency Council can monitor everything in real-time
-- AI automatically detects outages from social media and news
+The platform answers the question: **"How might the government deliver essential services and improve its effectiveness amidst the national energy emergency situation?"**
+
+**Key capabilities:**
+
+- Crowdsourced outage reporting with GPS auto-location
+- AI-driven severity scoring and predictive analytics
+- Transparent permit tracking from submission to decision
+- Multi-agency coordination with hierarchical role-based access
+- Automatic brownout detection from social media and news sources
 
 ---
 
-## How to Install
+## Installation
 
 ### Prerequisites
 
-Make sure you have these installed on your computer:
+| Software | Version | Source |
+|----------|---------|--------|
+| PHP | 8.2+ | https://php.net |
+| Composer | Latest | https://getcomposer.org |
+| Node.js | 18+ | https://nodejs.org |
+| SQLite | Built-in with PHP | None required |
 
-| Software | Version | Download |
-|----------|---------|----------|
-| **PHP** | 8.2+ | https://php.net |
-| **Composer** | Latest | https://getcomposer.org |
-| **Node.js** | 18+ | https://nodejs.org |
-| **SQLite** | Built-in with PHP | No download needed |
+### Setup
 
-### Step-by-Step Installation
-
-**1. Clone or download the project**
 ```bash
+# 1. Clone the repository
 git clone <repository-url>
 cd eWattPH
-```
 
-**2. Install PHP dependencies**
-```bash
+# 2. Install dependencies
 composer install
-```
-
-**3. Install JavaScript dependencies**
-```bash
 npm install
-```
 
-**4. Create the database**
-```bash
+# 3. Create database
 touch database/database.sqlite
-```
 
-**5. Set up environment file**
-```bash
+# 4. Configure environment
 cp .env.example .env
 php artisan key:generate
-```
 
-**6. Run database migrations and seed demo data**
-```bash
+# 5. Run migrations and seed demo data
 php artisan migrate:fresh --seed
-```
 
-**7. Import Philippine LGU data (1,600+ cities/municipalities)**
-```bash
+# 6. Import Philippine LGU data (1,600+ cities/municipalities)
 php artisan import:psgc
-```
 
-**8. Build the frontend**
-```bash
+# 7. Build frontend assets
 npm run build
-```
 
-**9. Start the server**
-```bash
+# 8. Start development server
 php artisan serve
 ```
 
-**10. Open your browser**
-```
-http://127.0.0.1:8000
-```
-
-That's it! The app is now running.
+Open **http://127.0.0.1:8000** in your browser.
 
 ---
 
-## How to Use (Login)
+## Demo Accounts
 
-After installation, you can log in with these demo accounts. The password for all accounts is: **`password`**
+Password for all accounts: **`password`**
 
-| Role | Email | What they can do |
-|------|-------|------------------|
-| **Super Admin** | `admin@ewattph.gov.ph` | Manage users, system settings, view logs |
-| **NEC** | `nec@ewattph.gov.ph` | Monitor entire Philippines, declare emergencies |
-| **DOE Staff** | `doe.staff@ewattph.gov.ph` | Review permits, create advisories, view national data |
-| **DOE Head** | `doe.secretary@ewattph.gov.ph` | Final approve/reject permits, issue directives |
-| **LGU Staff (QC)** | `qc.staff@ewattph.gov.ph` | Verify brownout reports, dispatch teams in Quezon City |
-| **LGU Admin (QC)** | `qc.mayor@ewattph.gov.ph` | Final approve permits in Quezon City |
-| **Provincial Admin** | `governor.batangas@ewattph.gov.ph` | Coordinate across LGUs in Batangas |
-| **Citizen** | `citizen1@example.com` | Report brownouts, apply for permits |
-| **Company** | `solarcompany@example.com` | Apply for business/energy permits |
+| Role | Email | Access Level |
+|------|-------|--------------|
+| Super Admin | `admin@ewattph.gov.ph` | System-wide user management and logs |
+| National Emergency Council | `nec@ewattph.gov.ph` | Nationwide monitoring and emergency declaration |
+| DOE Agency Head | `doe.secretary@ewattph.gov.ph` | Final permit approval and policy directives |
+| DOE Agency Staff | `doe.staff@ewattph.gov.ph` | Permit review, advisories, national energy data |
+| Provincial Admin | `governor.batangas@ewattph.gov.ph` | Cross-LGU coordination in Batangas |
+| LGU Administrator (QC) | `qc.mayor@ewattph.gov.ph` | Final permit approval in Quezon City |
+| LGU Staff (QC) | `qc.staff@ewattph.gov.ph` | Report verification, dispatch, permit review |
+| Citizen | `citizen1@example.com` | Outage reporting and permit applications |
+| Company | `solarcompany@example.com` | Business permit applications |
 
 ---
 
-## How the Roles Work
+## Role Hierarchy
 
-eWattPH has **9 roles** that mirror the Philippine government structure. Each role has **specific permissions** — they can only see and do what their job requires.
-
-### Role Hierarchy (Simple Explanation)
+The system implements **9 roles** that mirror the Philippine government structure. Each role has strictly scoped access.
 
 ```
-┌─────────────────────────────────────────────┐
-│  👑 Super Admin                             │
-│  System manager — creates accounts,         │
-│  manages settings, views logs               │
-├─────────────────────────────────────────────┤
-│  🏛️ National Emergency Council (NEC)        │
-│  Highest decision maker — sees everything   │
-│  nationwide, can declare emergencies        │
-├─────────────────────────────────────────────┤
-│  ⚡ Department of Energy (DOE)               │
-│  Agency Head — approves permits, issues     │
-│  policies, coordinates nationally           │
-│  Agency Staff — reviews permits, creates    │
-│  advisories, monitors energy data           │
-├─────────────────────────────────────────────┤
-│  🏢 Provincial Admin                         │
-│  Governor's office — coordinates across     │
-│  multiple LGUs in a province                │
-├─────────────────────────────────────────────┤
-│  🏠 LGU (Local Government Unit)              │
-│  LGU Admin (Mayor) — approves permits,      │
-│  oversees local operations                  │
-│  LGU Staff — verifies reports, dispatches   │
-│  teams, processes permits                   │
-├─────────────────────────────────────────────┤
-│  👤 Citizen / Company                        │
-│  Reports brownouts, applies for permits,    │
-│  tracks own applications                    │
-└─────────────────────────────────────────────┘
+Super Admin
+    System-wide access. Manages users, settings, and audit logs.
+    Does NOT process permits or verify outage reports.
+
+National Emergency Council
+    Nationwide oversight. Declares emergencies and monitors all agencies.
+    Does NOT process permits or verify individual reports.
+
+Department of Energy (DOE)
+    Agency Head -- Final approve/reject national permits, issue directives
+    Agency Staff -- Review national permits, create advisories
+
+Provincial Administrator
+    Coordinates cross-LGU responses within a province.
+
+Local Government Unit (LGU)
+    LGU Admin (Mayor) -- Final approve/reject local permits
+    LGU Staff -- Verify outage reports, dispatch teams, recommend permits
+
+Citizen / Company
+    Report outages, apply for permits, track applications.
 ```
 
-### Brownout Report Flow
+---
 
-Here's what happens when a citizen reports a brownout:
+## Brownout Report Flow
 
 ```
-1. Citizen reports brownout
-   → GPS location auto-detected
-   → Photo uploaded (optional)
-   → Status: PENDING
+1. Citizen submits report
+   GPS auto-detected. Photo optional. Status: PENDING.
 
 2. AI analyzes the report
-   → Severity score (0-100)
-   → Probable cause identified
-   → Suggested actions
+   Severity score (0-100). Probable cause. Suggested actions.
 
-3. LGU Staff sees the report
-   → Verifies it's real → Status: VERIFIED
-   → Dispatches response team
+3. LGU Staff reviews
+   Verifies report. Dispatches response team. Status: VERIFIED.
 
-4. Problem fixed
-   → Status: RESOLVED
-   → Citizen notified
-   → Public map updated
+4. Resolution
+   Power restored. Status: RESOLVED. Citizen notified.
 ```
-
-### Permit Approval Flow (Two-Step Process)
-
-Permits require **two people** to approve — this is for security and accountability:
-
-```
-1. Citizen/Company submits permit
-   → Status: SUBMITTED
-
-2. Staff reviews documents
-   → AI checks completeness
-   → Staff recommends approval or rejection
-   → Status: RECOMMENDED FOR APPROVAL
-              or RECOMMENDED FOR REJECTION
-
-3. Admin/Head makes final decision
-   → Approves → Status: APPROVED ✅
-   → Rejects → Status: REJECTED ❌
-
-4. Applicant notified of decision
-```
-
-**Who does what:**
-
-| Permit Type | Staff (Recommends) | Admin/Head (Final Decision) |
-|-------------|--------------------|-----------------------------|
-| Local permits (solar rooftop, building) | LGU Staff | LGU Admin (Mayor) |
-| National permits (transmission, large solar) | DOE Staff | DOE Head (Secretary) |
-
-### What Each Role Sees
-
-| Role | Dashboard Shows | Can Do |
-|------|-----------------|--------|
-| **Citizen** | Home, Map, Reports, Permits | Report outages, apply for permits |
-| **LGU Staff** | LGU Dashboard with brownout reports + permits | Verify reports, dispatch teams, recommend permits |
-| **LGU Admin** | LGU Dashboard with permits section | Final approve/reject local permits |
-| **DOE Staff** | DOE Dashboard with national data + permits | Create advisories, recommend national permits |
-| **DOE Head** | DOE Dashboard with permit approvals | Final approve/reject national permits |
-| **NEC** | National overview of everything | Declare emergencies, monitor all agencies |
-| **Super Admin** | Admin panel with user management | Create users, view logs, manage system |
 
 ---
 
-## Automatic Brownout Detection
+## Permit Approval Flow
 
-The system automatically scans social media (Twitter/X, Facebook) and news websites for brownout reports. When it finds one:
+Permits follow a **two-step approval process** for accountability:
 
-1. AI reads the post and extracts location + details
-2. Confidence score is calculated (how sure we are it's a real outage)
-3. It appears on the live map as an "Auto-Detected" marker
-4. If confidence is high enough, it's included in analytics
+```
+1. Applicant submits permit
+   Status: SUBMITTED.
 
-This means even if nobody uses the app, the system can detect brownouts happening across the Philippines.
+2. Staff reviews documents
+   AI pre-screens for compliance. Staff recommends decision.
+   Status: RECOMMENDED FOR APPROVAL or RECOMMENDED FOR REJECTION.
+
+3. Administrator makes final decision
+   Approves or rejects with documented reason.
+   Status: APPROVED or REJECTED.
+
+4. Applicant notified of decision.
+```
+
+**Approval authority:**
+
+| Permit Type | Recommends | Final Decision |
+|-------------|------------|----------------|
+| Local (solar rooftop, building electrical) | LGU Staff | LGU Administrator |
+| National (transmission lines, large solar farms) | DOE Agency Staff | DOE Agency Head |
+
+---
+
+## Automatic Detection
+
+The system continuously scans social media platforms and news websites for brownout reports using web scraping. When a potential outage is detected:
+
+1. AI extracts location and incident details from the post
+2. Confidence score is calculated based on source reliability and content clarity
+3. Incident appears on the live map as an auto-detected marker
+4. High-confidence incidents are included in analytics and risk assessments
+
+This enables real-time grid awareness even without direct citizen reports.
+
+---
+
+## Technology Stack
+
+| Layer | Technology |
+|-------|------------|
+| Backend | Laravel (PHP 8.4) |
+| Frontend | React 18, Inertia.js |
+| Styling | Tailwind CSS |
+| Database | SQLite (development), MySQL 8.0 (production) |
+| AI Integration | OpenRouter API |
+| Mapping | MapLibre GL JS |
+| Design System | eGovPH-aligned UI tokens |
 
 ---
 
@@ -236,55 +199,26 @@ This means even if nobody uses the app, the system can detect brownouts happenin
 
 ```
 eWattPH/
-├── app/
-│   ├── Console/Commands/     ← Background tasks (AI analysis, data import)
-│   ├── Http/Controllers/     ← API endpoints (Auth, Reports, Permits, Admin)
-│   ├── Models/               ← Database models (User, Permit, OutageReport)
-│   └── Services/             ← Business logic (AI, notifications, metrics)
-├── database/
-│   ├── migrations/           ← Database structure
-│   └── seeders/              ← Demo data (users, roles, LGUs)
-├── resources/js/
-│   ├── Components/           ← Reusable UI (Map, Logo, Footer)
-│   ├── Layouts/              ← Page layout (navbar, sidebar)
-│   └── Pages/                ← All pages (Home, Reports, Permits, Admin)
-└── routes/web.php            ← All URL routes
+    app/
+        Console/Commands/     Background tasks (AI analysis, data import)
+        Http/Controllers/     API endpoints (Auth, Reports, Permits, Admin)
+        Models/               Database models (User, Permit, OutageReport)
+        Services/             Business logic (AI, notifications, metrics)
+    database/
+        migrations/           Database schema
+        seeders/              Demo data (users, roles, LGUs)
+    resources/js/
+        Components/           Reusable UI components
+        Layouts/              Application shell and navigation
+        Pages/                All page views
+    routes/web.php            Route definitions
 ```
-
----
-
-## Tech Stack
-
-| Part | Technology |
-|------|------------|
-| **Backend** | Laravel (PHP) |
-| **Frontend** | React + Inertia.js |
-| **Styling** | Tailwind CSS |
-| **Database** | SQLite (dev) / MySQL (production) |
-| **AI** | OpenRouter API |
-| **Maps** | MapLibre GL JS |
-| **Design** | eGovPH-style UI |
-
----
-
-## Testing the App
-
-**Quick test flow:**
-
-1. Go to `http://127.0.0.1:8000`
-2. Click **"Get Started"** to register as a citizen
-3. Log in and go to **"Reports"** → click **"Use my current location"**
-4. Submit a brownout report
-5. Log out, then log in as **LGU Staff** (`qc.staff@ewattph.gov.ph`)
-6. Go to **"LGU Dashboard"** → see the report → click **"I-verify"**
-7. Log in as **LGU Admin** (`qc.mayor@ewattph.gov.ph`)
-8. Go to **"LGU Dashboard"** → **"Permits"** tab → approve a permit
 
 ---
 
 ## License
 
-This project was created for the **NextGenPH 2026 Innovation Contest** by the Development Academy of the Philippines (DAP).
+This project was developed for the **NextGenPH 2026 Innovation Contest** by the Development Academy of the Philippines (DAP).
 
 ---
 
@@ -292,12 +226,12 @@ This project was created for the **NextGenPH 2026 Innovation Contest** by the De
 
 ### Developed by
 
-**John Joshua Manalo Escare**
+**John Joshua Manalo Escarez**
 
-Mindoro State University — Main Campus
+Mindoro State University -- Main Campus
 
 ---
 
-**eWattPH** — Empowering Governance with Intelligent Energy ⚡🇵🇭
+*eWattPH -- Empowering Governance with Intelligent Energy*
 
 </div>
