@@ -226,7 +226,11 @@ This project was developed for the **NextGenPH 2026 Innovation Contest** by the 
 
 ### Developed by
 
-**John Joshua Manalo Escarez**
+**John Joshua Manalo Escarez** -- Lead Fullstack Developer & Lead Engineer
+
+**Jeremiah Tabaday** -- Quality Assurance
+
+**Keizy Atienza Aala** -- Pitching
 
 Mindoro State University -- Main Campus
 
