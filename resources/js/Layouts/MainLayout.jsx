@@ -30,6 +30,7 @@ function buildNav(user) {
     { label: 'Home', href: '/', icon: Home },
     { label: 'Monitoring', href: '/monitoring', icon: Radar },
     { label: 'Live Map', href: '/map', icon: MapPin },
+    { label: 'History', href: '/history', icon: FileText },
   )
 
   // Citizens & Companies — Reports + Permits
@@ -174,7 +175,7 @@ export default function MainLayout({ children }) {
       )}
 
       {/* Content shell — centered max width so cards never stretch edge-to-edge */}
-      <main className="w-full flex-1 px-4 py-6 pb-24 md:px-8 md:py-8 md:pb-12">
+      <main className="w-full flex-1 px-4 py-6 pb-14 md:px-8 md:py-8 md:pb-12">
         <div className="mx-auto w-full max-w-7xl 2xl:max-w-[1400px]">{children}</div>
       </main>
 

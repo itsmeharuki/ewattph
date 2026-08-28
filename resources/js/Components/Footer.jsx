@@ -3,7 +3,7 @@ import Logo from './Logo'
 /** Exact e.gov.ph-style dark footer (#111111, seal + white logo, 3 columns). */
 export default function Footer() {
   return (
-    <footer className="bg-[#111111] text-white mb-14 md:mb-0">
+    <footer className="w-full bg-[#111111] text-white">
       <div className="mx-auto w-full max-w-[1600px] px-4 py-10 md:py-12 grid gap-8 grid-cols-2 md:grid-cols-4 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         {/* Brand */}
         <div className="col-span-2 md:col-span-1">

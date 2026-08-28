@@ -17,6 +17,7 @@ Route::get('/', [DashboardController::class, 'home'])->name('welcome');
 Route::get('/home', [DashboardController::class, 'home'])->name('home');
 Route::get('/monitoring', [\App\Http\Controllers\MonitoringController::class, 'index'])->name('monitoring');
 Route::get('/permits/tracker', [PermitController::class, 'tracker'])->name('permits.tracker');
+Route::get('/history', [\App\Http\Controllers\HistoryController::class, 'index'])->name('history');
 
 // Live national map page (guests + citizens)
 Route::get('/map', fn () => inertia('Map/LiveMap'))->name('map');

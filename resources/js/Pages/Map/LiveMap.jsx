@@ -45,6 +45,7 @@ function buildMapNav(user) {
     { label: 'Home', href: '/' },
     { label: 'Monitoring', href: '/monitoring' },
     { label: 'Live Map', href: '/map' },
+    { label: 'History', href: '/history' },
   )
   if (isCitizen) {
     nav.push(

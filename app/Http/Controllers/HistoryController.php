@@ -1,58 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Doe;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\AutoDetectedOutage;
 use App\Models\Lgu;
 use App\Models\OutageReport;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 
 class HistoryController extends Controller
 {
     public function index(Request $request)
     {
-        abort_unless($request->user()->hasRole('agency_staff', 'agency_head'), 403);
-
-        $filters = $request->only(['region', 'province', 'city', 'status', 'from', 'to']);
-
-        // Get unique regions for filter dropdown
-        $regions = Lgu::whereNotNull('region')
-            ->distinct()
-            ->pluck('region')
-            ->sort()
-            ->values();
-
-        // Get provinces (filtered by region if set)
-        $provincesQuery = Lgu::whereNotNull('province')->distinct();
-        if (!empty($filters['region'])) {
-            $provincesQuery->where('region', $filters['region']);
-        }
-        $provinces = $provincesQuery->pluck('province')->sort()->values();
-
-        // Get cities/municipalities (filtered by province if set)
-        $citiesQuery = Lgu::whereNotNull('name')->distinct();
-        if (!empty($filters['province'])) {
-            $citiesQuery->where('province', $filters['province']);
-        }
-        $cities = $citiesQuery->pluck('name')->sort()->values();
+        $filters = $request->only(['province', 'from', 'to']);
 
         // ── Citizen Reports ──
         $reportsQuery = OutageReport::with('lgu:id,name,province,region');
 
-        if (!empty($filters['region'])) {
-            $reportsQuery->whereHas('lgu', fn ($q) => $q->where('region', $filters['region']));
-        }
         if (!empty($filters['province'])) {
             $reportsQuery->whereHas('lgu', fn ($q) => $q->where('province', $filters['province']));
-        }
-        if (!empty($filters['city'])) {
-            $reportsQuery->whereHas('lgu', fn ($q) => $q->where('name', $filters['city']));
-        }
-        if (!empty($filters['status'])) {
-            $reportsQuery->where('status', $filters['status']);
         }
         if (!empty($filters['from'])) {
             $reportsQuery->where('created_at', '>=', $filters['from']);
@@ -66,14 +32,11 @@ class HistoryController extends Controller
             'id' => $r->id,
             'location' => $r->lgu?->name ?? 'Unknown',
             'province' => $r->lgu?->province ?? '',
-            'region' => $r->lgu?->region ?? '',
             'status' => $r->status,
             'severity' => $r->ai_severity_score,
             'description' => $r->description,
-            'source' => null,
             'source_url' => null,
             'confidence' => null,
-            'outage_type' => $r->outage_type,
             'date' => $r->created_at,
             'formatted_date' => $r->created_at->format('M d, Y h:i A'),
             'duration' => $r->resolved_at
@@ -81,7 +44,7 @@ class HistoryController extends Controller
                 : null,
         ]);
 
-        // ── Auto-Detected (Web Scraping) ──
+        // ── Auto-Detected ──
         $autoQuery = AutoDetectedOutage::where('status', '!=', 'dismissed')
             ->where('confidence_score', '>=', 50);
 
@@ -100,14 +63,11 @@ class HistoryController extends Controller
             'id' => $d->id,
             'location' => $d->detected_province ?? 'Unknown',
             'province' => $d->detected_province ?? '',
-            'region' => '',
             'status' => 'auto-detected',
             'severity' => 0,
             'description' => $d->summary,
-            'source' => AutoDetectedOutage::sourceLabel($d->source),
             'source_url' => $d->source_url,
             'confidence' => $d->confidence_score,
-            'outage_type' => $d->outage_type,
             'date' => $d->detected_at,
             'formatted_date' => $d->detected_at->format('M d, Y h:i A'),
             'duration' => null,
@@ -127,7 +87,7 @@ class HistoryController extends Controller
             $total,
             $perPage,
             $page,
-            ['path' => '/doe/history', 'query' => array_filter($request->query(), fn ($v) => $v !== null && $v !== '')]
+            ['path' => '/history', 'query' => array_filter($request->query(), fn ($v) => $v !== null && $v !== '')]
         );
 
         // ── Most Affected Areas (paginated) ──
@@ -153,17 +113,24 @@ class HistoryController extends Controller
             $hotspotTotal,
             10,
             $hotspotPage,
-            ['path' => '/doe/history', 'query' => array_filter($request->query(), fn ($v) => $v !== null && $v !== '')]
+            ['path' => '/history', 'query' => array_filter($request->query(), fn ($v) => $v !== null && $v !== '')]
         );
+
+        // Get provinces for the filter dropdown
+        $provinces = Lgu::whereNotNull('province')
+            ->distinct()
+            ->pluck('province')
+            ->sort()
+            ->values();
 
         return inertia('Doe/History', [
             'incidents' => $paginated,
             'hotspots' => $hotspotPaginator,
-            'regions' => $regions,
             'provinces' => $provinces,
-            'cities' => $cities,
+            'regions' => collect(),
+            'cities' => collect(),
             'filters' => $filters,
-            'isPublic' => false,
+            'isPublic' => true,
         ]);
     }
 }
