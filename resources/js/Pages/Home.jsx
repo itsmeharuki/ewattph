@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react'
 import { Zap, MapPin, FileText, ShieldCheck, ChevronRight, BadgeCheck, ArrowUpRight, Brain, Users, Lock, Radar, FileCheck2, Network, MousePointerClick, Landmark, BrainCircuit } from 'lucide-react'
 import Reveal from '../Components/Reveal'
+import SplashScreen from '../Components/SplashScreen'
 
 /**
  * Landing page — pure system overview, e.gov.ph structure:
@@ -11,6 +12,8 @@ export default function Home({ greeting, myReportsCount = 0, myActivePermits = 0
   const user = auth?.user
 
   return (
+    <>
+    <SplashScreen />
     <div
       className="relative -mb-24 -mt-6 md:-mb-12 md:-mt-8"
       style={{ marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
@@ -47,7 +50,7 @@ export default function Home({ greeting, myReportsCount = 0, myActivePermits = 0
             Philippine power grid — report outages, track permits, and respond faster during the energy emergency.
           </p>
 
-          <div className="hero-in mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-3.5 md:mt-10" style={{ animationDelay: '300ms' }}>
+          <div className="hero-in mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-3.5 md:mt-14" style={{ animationDelay: '300ms' }}>
             <Link href="/monitoring"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white shadow-xl shadow-[#0040E7]/25 transition duration-500 ease-[cubic-bezier(.22,1,.36,1)] hover:-translate-y-0.5 hover:bg-primary/90 sm:px-8 sm:py-3.5">
               <Radar className="h-4 w-4" /> Live Monitoring
@@ -65,9 +68,7 @@ export default function Home({ greeting, myReportsCount = 0, myActivePermits = 0
             </p>
           )}
 
-          <div aria-hidden="true" className="absolute inset-x-0 -bottom-2 hidden justify-center md:flex">
-            <ChevronRight className="h-6 w-6 rotate-90 animate-bounce text-slate-300" />
-          </div>
+
         </div>
       </section>
 
@@ -281,6 +282,7 @@ export default function Home({ greeting, myReportsCount = 0, myActivePermits = 0
         </Reveal>
       </div>
     </div>
+    </>
   )
 }
 
