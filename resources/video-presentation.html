@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eWattPH — Video Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    background: #F8FAFC;
+    position: relative;
+  }
+
+  /* Glow orbs */
+  .glow-1 {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,64,231,0.12) 0%, transparent 70%);
+    top: -100px; left: -100px;
+    animation: floatGlow 8s ease-in-out infinite;
+  }
+  .glow-2 {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 70%);
+    bottom: -80px; right: -80px;
+    animation: floatGlow 10s ease-in-out infinite reverse;
+  }
+  .glow-3 {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,64,231,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulseGlow 6s ease-in-out infinite;
+  }
+
+  @keyframes floatGlow {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 20px); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  }
+
+  /* Scene container */
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    padding: 0 200px;
+  }
+  .scene.active { opacity: 1; }
+
+  /* Logo */
+  .logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+  .logo-img {
+    width: 80px; height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 30px rgba(0,64,231,0.3));
+    animation: logoFloat 4s ease-in-out infinite;
+  }
+  @keyframes logoFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .logo-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1E3A8A;
+    letter-spacing: 0.15em;
+  }
+
+  /* Script text */
+  .script-line {
+    font-size: 52px;
+    font-weight: 700;
+    color: #1F2937;
+    text-align: center;
+    line-height: 1.3;
+    max-width: 1200px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .script-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .script-line .highlight {
+    color: #1E3A8A;
+  }
+  .script-line .red {
+    color: #CE1126;
+  }
+  .script-line .gold {
+    color: #F59E0B;
+  }
+
+  /* Subtitle */
+  .subtitle {
+    font-size: 24px;
+    font-weight: 400;
+    color: #6B7280;
+    text-align: center;
+    margin-top: 24px;
+    max-width: 800px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.4s;
+  }
+  .subtitle.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Divider line */
+  .divider {
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #1E3A8A, transparent);
+    margin: 30px auto;
+    transition: width 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .divider.visible { width: 200px; }
+
+  /* Stats bar */
+  .stats {
+    display: flex;
+    gap: 60px;
+    margin-top: 40px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s;
+  }
+  .stats.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 48px;
+    font-weight: 800;
+    color: #1E3A8A;
+  }
+  .stat-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+
+  /* CTA */
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: #1E3A8A;
+    color: white;
+    padding: 18px 48px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 40px;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 20px 60px rgba(0,64,231,0.3);
+  }
+  .cta.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Fade out */
+  .scene.fade-out {
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+  }
+
+  /* Grid overlay */
+  .grid-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image:
+      linear-gradient(rgba(0,64,231,0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,64,231,0.3) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+<div class="glow-3"></div>
+<div class="grid-overlay"></div>
+
+<!-- SCENE 1: Opening — The Problem -->
+<div class="scene" id="scene1">
+  <div class="logo-container">
+    <img src="../public/images/ewattph-mark.svg" class="logo-img" alt="">
+    <span class="logo-text">eWattPH</span>
+  </div>
+  <div class="script-line" id="s1-line1">
+    When the lights go out,<br>the government finds out <span class="red">hours later</span>
+  </div>
+  <div class="subtitle" id="s1-sub">
+    from social media, not from their own system.
+  </div>
+</div>
+
+<!-- SCENE 2: The Cost -->
+<div class="scene" id="scene2">
+  <div class="logo-container">
+    <img src="../public/images/ewattph-mark.svg" class="logo-img" alt="">
+    <span class="logo-text">eWattPH</span>
+  </div>
+  <div class="script-line" id="s2-line1">
+    Every minute of delay<br>costs <span class="red">lives</span> and <span class="red">trust</span>.
+  </div>
+  <div class="divider" id="s2-divider"></div>
+  <div class="stats" id="s2-stats">
+    <div class="stat">
+      <div class="stat-value">17M+</div>
+      <div class="stat-label">Filipinos Affected</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">48hrs</div>
+      <div class="stat-label">Avg. Response Time</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Real-Time Systems</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 3: The Solution -->
+<div class="scene" id="scene3">
+  <div class="logo-container">
+    <img src="../public/images/ewattph-mark.svg" class="logo-img" alt="">
+    <span class="logo-text">eWattPH</span>
+  </div>
+  <div class="script-line" id="s3-line1">
+    One platform. <span class="highlight">Every answer.</span>
+  </div>
+  <div class="subtitle" id="s3-sub">
+    Real-time grid intelligence for the Philippine government.
+  </div>
+  <div class="cta" id="s3-cta">
+    Empowering Governance with Intelligent Energy
+  </div>
+</div>
+
+<script>
+  const scenes = [
+    {
+      id: 'scene1',
+      elements: ['s1-line1', 's1-sub'],
+      duration: 6500
+    },
+    {
+      id: 'scene2',
+      elements: ['s2-line1', 's2-divider', 's2-stats'],
+      duration: 6500
+    },
+    {
+      id: 'scene3',
+      elements: ['s3-line1', 's3-sub', 's3-cta'],
+      duration: 6500
+    }
+  ];
+
+  let currentScene = 0;
+
+  function showScene(index) {
+    if (index >= scenes.length) return;
+
+    const scene = scenes[index];
+    const sceneEl = document.getElementById(scene.id);
+
+    // Show scene
+    sceneEl.classList.add('active');
+
+    // Animate elements with stagger
+    scene.elements.forEach((elId, i) => {
+      setTimeout(() => {
+        const el = document.getElementById(elId);
+        if (el) el.classList.add('visible');
+      }, 600 + (i * 700));
+    });
+
+    // Fade out and move to next
+    setTimeout(() => {
+      sceneEl.classList.remove('active');
+      sceneEl.classList.add('fade-out');
+
+      setTimeout(() => {
+        sceneEl.classList.remove('fade-out');
+        currentScene++;
+        if (currentScene < scenes.length) {
+          showScene(currentScene);
+        }
+      }, 600);
+    }, scene.duration);
+  }
+
+  // Start
+  setTimeout(() => showScene(0), 300);
+</script>
+
+</body>
+</html>
